@@ -1,0 +1,1 @@
+This is a C++ implementation of the Lox programming language, as detailed for a Java implementation in [Crafting Interpreters](http://craftinginterpreters.com/).

@@ -3,22 +3,22 @@
 namespace Lox {
 
 std::unordered_map<std::string, TokenType> Scanner::keywords{
-    {"and", TokenType::AND},
-    {"class", TokenType::CLASS},
-    {"else", TokenType::ELSE},
-    {"false", TokenType::FALSE},
-    {"for", TokenType::FOR},
-    {"fun", TokenType::FUN},
-    {"if", TokenType::IF},
-    {"nil", TokenType::NIL},
-    {"or", TokenType::OR},
-    {"print", TokenType::PRINT},
+    {"and",    TokenType::AND},
+    {"class",  TokenType::CLASS},
+    {"else",   TokenType::ELSE},
+    {"false",  TokenType::FALSE},
+    {"for",    TokenType::FOR},
+    {"fun",    TokenType::FUN},
+    {"if",     TokenType::IF},
+    {"nil",    TokenType::NIL},
+    {"or",     TokenType::OR},
+    {"print",  TokenType::PRINT},
     {"return", TokenType::RETURN},
-    {"super", TokenType::SUPER},
-    {"this", TokenType::THIS},
-    {"true", TokenType::TRUE},
-    {"var", TokenType::VAR},
-    {"while", TokenType::WHILE}
+    {"super",  TokenType::SUPER},
+    {"this",   TokenType::THIS},
+    {"true",   TokenType::TRUE},
+    {"var",    TokenType::VAR},
+    {"while",  TokenType::WHILE}
 };
 
 Scanner::Scanner(std::string& source) : _source{source}, _tokens{}
@@ -91,7 +91,13 @@ void Scanner::number() {
 void Scanner::identifier() {
     while(isAlphaNumeric(peek())) advance();
 
-    addToken(TokenType::IDENTIFIER);
+    std::string text = _source.substr(_start,_current-_start);
+    if (keywords.find(text) != keywords.end())
+    {
+        addToken(keywords.at(text));
+    } else {
+        addToken(TokenType::IDENTIFIER);
+    }
 }
 
 void Scanner::string() {

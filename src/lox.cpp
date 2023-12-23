@@ -45,6 +45,7 @@ void Lox::run(std::string& source) {
     Scanner scanner{source};
     std::list<Token> tokens = scanner.scanTokens();
 
+    std::cout<< tokens.size()<<std::endl;
     for (auto token : tokens) {
         std::cout << token << std::endl;
     }

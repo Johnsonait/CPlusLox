@@ -19,14 +19,14 @@ public:
     ~Lox() = default;
 
     void main(std::vector<std::string>& args);
-    void error(const int line, const std::string& message);
+    static void error(const int line, const std::string& message);
 
     static bool hadError;
 private:
     void runFile(std::string& path);
     void runPrompt();
     void run(std::string& source);
-    void report(const int line,const std::string& where,const std::string& message);
+    static void report(const int line,const std::string& where,const std::string& message);
 
 };
 

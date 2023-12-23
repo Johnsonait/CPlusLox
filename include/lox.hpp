@@ -3,6 +3,7 @@
 
 #include "scanner.hpp"
 #include "token.hpp"
+#include "expr.hpp"
 
 #include <stdlib.h>
 #include <string>

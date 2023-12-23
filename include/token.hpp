@@ -11,7 +11,7 @@ namespace Lox {
 
 class Token {
 public:
-    Token() = delete;
+    Token() = default;
     Token(
         const TokenType& type,
         const std::string& lexeme,
@@ -29,11 +29,13 @@ public:
     }
 
 private:
-    const TokenType _type;
-    const std::string _lexeme;
-    const int _line;
+    TokenType _type;
+    std::string _lexeme;
+    int _line;
     // An alleged equivalent to the Java Object type for storing literals for Lox.
-    const std::variant<double,std::string,std::monostate> _literal;
+    // Definitely not the most elegant solution but it allows for the two "base" 
+    // types of literal as well as a null equivalent (monostate)
+    std::variant<double,std::string,std::monostate> _literal;
 
     
 }; 

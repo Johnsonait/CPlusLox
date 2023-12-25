@@ -9,6 +9,7 @@ void Lox::main(std::vector<std::string>& args) {
     printer.main(args);
 
     return;
+    
     if(args.size() > 1){
         std::cout << "Usage: jlox [script]" << std::endl;
     } else if(args.size() == 1){

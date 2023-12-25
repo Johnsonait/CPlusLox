@@ -3,7 +3,8 @@
 
 #include "scanner.hpp"
 #include "token.hpp"
-#include "expr_visitor.hpp"
+#include "expr.hpp"
+#include "value.hpp"
 #include "ast_printer.hpp"
 
 #include <stdlib.h>

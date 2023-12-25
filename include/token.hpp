@@ -28,7 +28,6 @@ public:
         return stream << token._lexeme << std::endl;
     }
 
-private:
     TokenType _type;
     std::string _lexeme;
     int _line;

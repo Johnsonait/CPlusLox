@@ -5,6 +5,10 @@ namespace Lox {
 bool Lox::hadError = false;
 
 void Lox::main(std::vector<std::string>& args) {
+    AstPrinter printer{};
+    printer.main(args);
+
+    return;
     if(args.size() > 1){
         std::cout << "Usage: jlox [script]" << std::endl;
     } else if(args.size() == 1){

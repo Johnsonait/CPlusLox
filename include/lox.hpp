@@ -6,6 +6,7 @@
 #include "expr.hpp"
 #include "value.hpp"
 #include "ast_printer.hpp"
+#include "parser.hpp"
 
 #include <stdlib.h>
 #include <string>
@@ -23,6 +24,7 @@ public:
 
     void main(std::vector<std::string>& args);
     static void error(const int line, const std::string& message);
+    static void error(const Token& token, const std::string& message);
 
     static bool hadError;
 private:

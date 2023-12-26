@@ -12,6 +12,17 @@ Parser::Parser(const std::vector<Token>& t) : tokens{t}
 //==============================================================================
 // Expression handling
 //==============================================================================
+
+std::unique_ptr<Expr> Parser::parse() {
+    try {
+        return expression();
+    } catch (ParseError& e)
+    {
+        return nullptr;
+    }
+    
+}
+
 std::unique_ptr<Expr> Parser::expression() {
     return equality();
 }
@@ -91,6 +102,47 @@ std::unique_ptr<Expr> Parser::primary() {
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
         return std::make_unique<Grouping>(std::move(expr));
     }
+
+    throw error(peek(), "Expect expression.");
+
+}
+
+//==============================================================================
+// Error handling
+//==============================================================================
+Token Parser::consume(const TokenType& type, const std::string& message) {
+    if (check(type)) return advance();
+    throw error(peek(),message);
+}
+
+ParseError Parser::error(const Token& token, const std::string& message) {
+    Lox::error(token,message);
+    return ParseError{};
+}
+
+void Parser::synchronize() {
+    advance();
+    while(!isAtEnd()) {
+        if (previous().type == TokenType::SEMICOLON) return;
+
+        switch (peek().type)
+        {
+        case TokenType::CLASS:
+        case TokenType::FOR:
+        case TokenType::FUN:
+        case TokenType::IF:
+        case TokenType::PRINT:
+        case TokenType::RETURN:
+        case TokenType::VAR:
+        case TokenType::WHILE:
+            return;
+        default:
+            break;
+        }
+
+        advance();
+    }
+
 
 }
 

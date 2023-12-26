@@ -18,19 +18,16 @@ class Literal;
 // Abstract Visitor
 //==============================================================================
 
+template<typename T>
 class ExprVisitor {
 public:
     virtual ~ExprVisitor(){}
 
-    virtual void visitBinaryExpr(Binary*) = 0;
-    virtual void visitGroupingExpr(Grouping*) = 0;
-    virtual void visitUnaryExpr(Unary*) = 0;
-    virtual void visitLiteralExpr(Literal*) = 0;
+    virtual T visitBinaryExpr(Binary*) = 0;
+    virtual T visitGroupingExpr(Grouping*) = 0;
+    virtual T visitUnaryExpr(Unary*) = 0;
+    virtual T visitLiteralExpr(Literal*) = 0;
 
-    virtual std::string describeBinaryExpr(Binary*) = 0;
-    virtual std::string describeGroupingExpr(Grouping*) = 0;
-    virtual std::string describeUnaryExpr(Unary*) = 0;
-    virtual std::string describeLiteralExpr(Literal*) = 0;
 };
 
 //==============================================================================
@@ -42,8 +39,9 @@ class Expr {
 public:
     virtual ~Expr(){}
 
-    virtual void accept(ExprVisitor*) = 0;
-    virtual std::string describe(ExprVisitor*) = 0;
+    virtual void accept(ExprVisitor<void>*) = 0;
+    virtual std::string accept(ExprVisitor<std::string>*) = 0;
+    virtual Value accept(ExprVisitor<Value>*) = 0;
 
 };
 
@@ -58,12 +56,16 @@ public:
     {}
     virtual ~Binary() override = default;
 
-    virtual void accept(ExprVisitor* visitor) override {
+    virtual void accept(ExprVisitor<void>* visitor) override {
         visitor->visitBinaryExpr(this);
     }
 
-    virtual std::string describe(ExprVisitor* visitor) override {
-        return visitor->describeBinaryExpr(this);
+    virtual std::string accept(ExprVisitor<std::string>* visitor) override {
+        return visitor->visitBinaryExpr(this);
+    }
+
+    virtual Value accept(ExprVisitor<Value>* visitor) override {
+        return visitor->visitBinaryExpr(this);
     }
 
     std::unique_ptr<Expr> left;
@@ -79,12 +81,16 @@ public:
     {}
     virtual ~Grouping() override = default;
 
-    virtual void accept(ExprVisitor* visitor) override {
+    virtual void accept(ExprVisitor<void>* visitor) override {
         visitor->visitGroupingExpr(this);
     }
 
-    virtual std::string describe(ExprVisitor* visitor) override {
-        return visitor->describeGroupingExpr(this);
+    virtual std::string accept(ExprVisitor<std::string>* visitor) override {
+        return visitor->visitGroupingExpr(this);
+    }
+
+    virtual Value accept(ExprVisitor<Value>* visitor) override {
+        return visitor->visitGroupingExpr(this);
     }
 
     std::unique_ptr<Expr> expression;
@@ -97,12 +103,16 @@ public:
     {}
     virtual ~Unary() override = default;
 
-    virtual void accept(ExprVisitor* visitor) override {
+    virtual void accept(ExprVisitor<void>* visitor) override {
         visitor->visitUnaryExpr(this);
     }
 
-    virtual std::string describe(ExprVisitor* visitor) override {
-        return visitor->describeUnaryExpr(this);
+    virtual std::string accept(ExprVisitor<std::string>* visitor) override {
+        return visitor->visitUnaryExpr(this);
+    }
+
+    virtual Value accept(ExprVisitor<Value>* visitor) override {
+        return visitor->visitUnaryExpr(this);
     }
 
     Token op;
@@ -122,12 +132,16 @@ public:
     {}
     virtual ~Literal() override = default;
 
-    virtual void accept(ExprVisitor* visitor) override {
+    virtual void accept(ExprVisitor<void>* visitor) override {
         visitor->visitLiteralExpr(this);
     }
 
-    virtual std::string describe(ExprVisitor* visitor) override {
-        return visitor->describeLiteralExpr(this);
+    virtual std::string accept(ExprVisitor<std::string>* visitor) override {
+        return visitor->visitLiteralExpr(this);
+    }
+
+    virtual Value accept(ExprVisitor<Value>* visitor) override {
+        return visitor->visitLiteralExpr(this);
     }
 
     Value value;

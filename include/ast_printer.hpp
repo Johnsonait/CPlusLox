@@ -12,7 +12,7 @@
 
 namespace Lox {
 
-class AstPrinter : public ExprVisitor {
+class AstPrinter : public ExprVisitor<std::string> {
 public: 
     virtual ~AstPrinter() override = default;
 
@@ -32,14 +32,14 @@ public:
     }
 
     std::string print(std::unique_ptr<Expr>& expr){
-        return expr->describe(this);
+        return expr->accept(this);
     }
 
     std::string parenthesize(const std::string& name, std::unique_ptr<Expr>& expr) {
         std::stringstream builder{};
 
         builder << "(" << name;
-        builder << " " << expr->describe(this);
+        builder << " " << expr->accept(this);
         builder << ")";
 
         return builder.str();
@@ -49,44 +49,27 @@ public:
         std::stringstream builder{};
 
         builder << "(" << name;
-        builder << " " << expr1->describe(this);
-        builder << " " << expr2->describe(this);
+        builder << " " << expr1->accept(this);
+        builder << " " << expr2->accept(this);
         builder << ")";
 
         return builder.str();
     }
 
-    // Accepters
-    virtual void visitBinaryExpr(Binary* b) override {
-        b->accept(this);
-    }
-
-    virtual void visitGroupingExpr(Grouping* g) override { 
-        g->accept(this);
-    }
-
-    virtual void visitUnaryExpr(Unary* u) override {
-        u->accept(this);
-    }
-
-    virtual void visitLiteralExpr(Literal* l) override {
-        l->accept(this);
-    }
-
     // Describers
-    virtual std::string describeBinaryExpr(Binary* b) override {
+    virtual std::string visitBinaryExpr(Binary* b) override {
         return parenthesize(b->op.lexeme,b->left,b->right);
     }
 
-    virtual std::string describeGroupingExpr(Grouping* g) override {
+    virtual std::string visitGroupingExpr(Grouping* g) override {
         return parenthesize("group",g->expression);
     }
 
-    virtual std::string describeUnaryExpr(Unary* u) override {
+    virtual std::string visitUnaryExpr(Unary* u) override {
         return parenthesize(u->op.lexeme, u->expression);
     }
 
-    virtual std::string describeLiteralExpr(Literal* l) override {
+    virtual std::string visitLiteralExpr(Literal* l) override {
         auto& val = l->value.item;
         // Float
         if (std::holds_alternative<double>(val)) {

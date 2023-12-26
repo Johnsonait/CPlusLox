@@ -118,6 +118,8 @@ public:
     {}
     Literal(const std::monostate& v) : value{v}
     {}
+    Literal(const Value& v) : value{v}
+    {}
     virtual ~Literal() override = default;
 
     virtual void accept(ExprVisitor* visitor) override {

@@ -26,7 +26,7 @@ private:
     char peek();
     char peekNext();
     void addToken(const TokenType&);
-    void addToken(const TokenType&, std::variant<double,std::string,std::monostate>);
+    void addToken(const TokenType&, std::variant<double,bool,std::string,std::monostate>);
     bool match(char);
     void string();
     bool isDigit(char);

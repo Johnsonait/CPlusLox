@@ -20,7 +20,7 @@ public:
         std::unique_ptr<Expr> expr = std::make_unique<Binary>(
             std::make_unique<Unary>(
                 Token{TokenType::MINUS,"-",std::monostate{},1},
-                std::make_unique<Literal>(123.0)
+                std::make_unique<Literal>(123)
             ),
             Token{TokenType::STAR,"*",std::monostate{},1},
             std::make_unique<Grouping>(
@@ -75,7 +75,7 @@ public:
 
     // Describers
     virtual std::string describeBinaryExpr(Binary* b) override {
-        return parenthesize(b->op._lexeme,b->left,b->right);
+        return parenthesize(b->op.lexeme,b->left,b->right);
     }
 
     virtual std::string describeGroupingExpr(Grouping* g) override {
@@ -83,17 +83,24 @@ public:
     }
 
     virtual std::string describeUnaryExpr(Unary* u) override {
-        return parenthesize(u->op._lexeme, u->expression);
+        return parenthesize(u->op.lexeme, u->expression);
     }
 
     virtual std::string describeLiteralExpr(Literal* l) override {
         auto& val = l->value.item;
+        // Float
         if (std::holds_alternative<double>(val)) {
             return std::to_string(std::get<double>(val));
+        // String
         } else if (std::holds_alternative<std::string>(val)) {
             return std::get<std::string>(val);
+        // Bool
+        } else if (std::holds_alternative<bool>(val)) {
+            return std::to_string(std::get<bool>(val));
+        // Null
         } else if (std::holds_alternative<std::monostate>(val)) {
             return "nil";
+        // Error
         } else {
             throw std::runtime_error("Unexpected type in variant");
         }

@@ -15,9 +15,9 @@ public:
     Token(
         const TokenType& type,
         const std::string& lexeme,
-        std::variant<double,std::string,std::monostate> literal,
+        std::variant<double,bool,std::string,std::monostate> literal,
         int line
-    ) : _type{type}, _lexeme{lexeme}, _literal{literal}, _line{line}
+    ) : type{type}, lexeme{lexeme}, literal{literal}, line{line}
     {}
 
     ~Token() = default;
@@ -25,16 +25,16 @@ public:
     // We can print out info about tokens in a fairly elegant way by making it
     // work with the C++ stream objects
     friend std::ostream& operator<<(std::ostream& stream, const Token& token) {
-        return stream << token._lexeme << std::endl;
+        return stream << token.lexeme << std::endl;
     }
 
-    TokenType _type;
-    std::string _lexeme;
-    int _line;
+    TokenType type;
+    std::string lexeme;
+    int line;
     // An alleged equivalent to the Java Object type for storing literals for Lox.
     // Definitely not the most elegant solution but it allows for the two "base" 
     // types of literal as well as a null equivalent (monostate)
-    std::variant<double,std::string,std::monostate> _literal;
+    std::variant<double,bool,std::string,std::monostate> literal;
 
     
 }; 

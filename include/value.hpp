@@ -9,10 +9,13 @@ namespace Lox {
 class Value {
 public:
     Value(const double& v);
+    Value(const bool& v);
     Value(const std::string& v);
     Value(const std::monostate& v);
+    Value(const Value&) = default;
+    Value(const std::variant<double, bool,std::string,std::monostate>& v);
 
-    std::variant<double,std::string,std::monostate> item;
+    std::variant<double,bool,std::string,std::monostate> item;
 };
 
 } // lox namespace

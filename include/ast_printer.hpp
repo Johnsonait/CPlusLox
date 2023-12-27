@@ -17,18 +17,18 @@ public:
     virtual ~AstPrinter() override = default;
 
     void main(const std::vector<std::string>& args) {
-        std::unique_ptr<Expr> expr = std::make_unique<Binary>(
-            std::make_unique<Unary>(
-                Token{TokenType::MINUS,"-",std::monostate{},1},
-                std::make_unique<Literal>(123)
-            ),
-            Token{TokenType::STAR,"*",std::monostate{},1},
-            std::make_unique<Grouping>(
-                std::make_unique<Literal>(45.67)
-            )
-        );
+        // std::unique_ptr<Expr> expr = std::make_unique<Binary>(
+        //     std::make_unique<Unary>(
+        //         Token{TokenType::MINUS,"-",std::monostate{},1},
+        //         std::make_unique<Literal>(123)
+        //     ),
+        //     Token{TokenType::STAR,"*",std::monostate{},1},
+        //     std::make_unique<Grouping>(
+        //         std::make_unique<Literal>(45.67)
+        //     )
+        // );
 
-        std::cout<<print(expr);
+        // std::cout<<print(expr);
     }
 
     std::string print(std::unique_ptr<Expr>& expr){

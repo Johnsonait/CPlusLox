@@ -1,6 +1,7 @@
 #ifndef LOX_HPP
 #define LOX_HPP
 
+#include "interpreter.hpp"
 #include "scanner.hpp"
 #include "token.hpp"
 #include "expr.hpp"
@@ -17,6 +18,9 @@
 
 namespace Lox 
 {
+
+class Interpreter;
+
 class Lox {
 public:
     Lox() = default;
@@ -25,8 +29,11 @@ public:
     void main(std::vector<std::string>& args);
     static void error(const int line, const std::string& message);
     static void error(const Token& token, const std::string& message);
+    static void runtimeError(RuntimeError& error);
 
     static bool hadError;
+    static bool hadRuntimeError;
+    static Interpreter interpreter;
 private:
     void runFile(std::string& path);
     void runPrompt();

@@ -3,6 +3,9 @@
 namespace Lox {
 
 bool Lox::hadError = false;
+bool Lox::hadRuntimeError = false;
+
+Interpreter Lox::interpreter{};
 
 void Lox::main(std::vector<std::string>& args) {
     if(args.size() > 1){
@@ -25,7 +28,10 @@ void Lox::runFile(std::string& path) {
     run(source);
 
     if (Lox::hadError) {
-        std::exit(1);
+        std::exit(65);
+    }
+    if (Lox::hadRuntimeError) {
+        std::exit(70);
     }
 }
 
@@ -52,9 +58,11 @@ void Lox::run(std::string& source) {
 
     if (hadError) return;
 
+    Lox::interpreter.interpret(expression);
+
     // Print out the Abstract Syntax Tree that defines the expression
-    AstPrinter printer{};
-    std::cout<<printer.print(expression);
+    // AstPrinter printer{};
+    // std::cout<<printer.print(expression);
 
     // std::cout<< tokens.size()<<std::endl;
     // for (auto token : tokens) {
@@ -74,6 +82,11 @@ void Lox::error(const Token& token, const std::string& message) {
         report(token.line, " at '" + token.lexeme + "'", message);
 
     }
+}
+
+void Lox::runtimeError(RuntimeError& error) {
+    std::cerr<<error.what()<<"\n["<<error.op.line<<"]";
+    hadRuntimeError = true;
 }
 
 void Lox::report(const int line, const std::string& where,const std::string& message) {

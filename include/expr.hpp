@@ -122,11 +122,13 @@ public:
 
 class Literal : public Expr {
 public:
-    Literal(const double& v) : value{v}
+    explicit Literal(const double& v) : value{v}
     {}
-    Literal(const std::string& v) : value{v}
+    explicit Literal(const bool& v) : value{v}
     {}
-    Literal(const std::monostate& v) : value{v}
+    explicit Literal(const std::string& v) : value{v}
+    {}
+    explicit Literal(const std::monostate& v) : value{v}
     {}
     Literal(const Value& v) : value{v}
     {}

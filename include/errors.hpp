@@ -3,5 +3,6 @@
 
 #include "error.hpp"
 #include "parse_error.hpp"
+#include "runtime_error.hpp"
 
 #endif

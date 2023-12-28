@@ -5,6 +5,7 @@
 #include "value.hpp"
 #include "token_type.hpp"
 #include "expr.hpp"
+#include "stmt.hpp"
 #include "errors.hpp"
 
 #include <memory>
@@ -12,23 +13,31 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 namespace Lox {
 
-class Interpreter : public ExprVisitor<Value> {
+class Interpreter : public ExprVisitor<Value>, public StmtVisitor<void> {
 public:
     virtual ~Interpreter() override = default;
 
     void interpret(std::unique_ptr<Expr>&);
+    void interpret(std::vector<std::unique_ptr<Stmt>>&);
 
+    // ExprVisitor<Value>
     virtual Value visitBinaryExpr(Binary*) override;
     virtual Value visitGroupingExpr(Grouping*) override;
     virtual Value visitUnaryExpr(Unary*) override;
     virtual Value visitLiteralExpr(Literal*) override;
 
+    // StmtVisitor<void>
+    virtual void visitExpressionStmt(Expression*) override;
+    virtual void visitPrintStmt(Print*) override;
+
 private:
     Value evaluate(Expr*);
     Value evaluate(std::unique_ptr<Expr>&);
+    void execute(std::unique_ptr<Stmt>&);
     bool isTruthy(const Value&);
     std::string stringify(const Value&);
     

@@ -9,20 +9,39 @@ Parser::Parser(const std::list<Token>& t) : tokens{t.begin(),t.end()}
 {}
 Parser::Parser(const std::vector<Token>& t) : tokens{t}
 {}
+
+//==============================================================================
+// Statement handling
+//==============================================================================
+std::vector<std::unique_ptr<Stmt>> Parser::parse() {
+    auto statements = std::vector<std::unique_ptr<Stmt>>{};
+    while(!isAtEnd()) {
+        statements.push_back(statement());
+    }
+
+    return statements;
+}
+
+std::unique_ptr<Stmt> Parser::statement() {
+    if (match({TokenType::PRINT})) return printStatement();
+
+    return expressionStatement();
+}
+
+std::unique_ptr<Stmt> Parser::printStatement() {
+    auto value = expression();
+    consume(TokenType::SEMICOLON,"Expect ';' after value.");
+    return std::make_unique<Print>(value);
+}
+std::unique_ptr<Stmt> Parser::expressionStatement() {
+    auto expr = expression();
+    consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+    return std::make_unique<Expression>(expr);
+}
+
 //==============================================================================
 // Expression handling
 //==============================================================================
-
-std::unique_ptr<Expr> Parser::parse() {
-    try {
-        return expression();
-    } catch (ParseError& e)
-    {
-        return nullptr;
-    }
-    
-}
-
 std::unique_ptr<Expr> Parser::expression() {
     return equality();
 }

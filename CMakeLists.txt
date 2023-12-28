@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 
 # Declare the project and set it to a variable
 set(PROJECT_NAME CPlusLox)
-set(EXECUTABLE_NAME Lox)
+set(EXECUTABLE_NAME lox)
 project(${PROJECT_NAME})
 
 # Set the C++ standard

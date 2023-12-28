@@ -5,6 +5,7 @@
 #include "token_type.hpp"
 #include "token.hpp"
 #include "expr.hpp"
+#include "stmt.hpp"
 #include "errors.hpp"
 
 #include <vector>
@@ -18,11 +19,16 @@ public:
     Parser(const std::list<Token>& t);
     Parser(const std::vector<Token>& t);
 
-    std::unique_ptr<Expr> parse();
+    std::vector<std::unique_ptr<Stmt>> parse();
 
 private:
     int current = 0;
     std::vector<Token> tokens;
+
+    // Statement handling
+    std::unique_ptr<Stmt> statement();
+    std::unique_ptr<Stmt> printStatement();
+    std::unique_ptr<Stmt> expressionStatement();
 
     // Expression handling
     std::unique_ptr<Expr> expression();

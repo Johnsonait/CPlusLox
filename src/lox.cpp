@@ -54,11 +54,11 @@ void Lox::run(std::string& source) {
 
     // Parse those tokens into expressions
     Parser parser{tokens};
-    auto expression = parser.parse();
+    auto statements = parser.parse();
 
     if (hadError) return;
 
-    Lox::interpreter.interpret(expression);
+    Lox::interpreter.interpret(statements);
 
     // Print out the Abstract Syntax Tree that defines the expression
     // AstPrinter printer{};

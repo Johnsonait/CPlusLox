@@ -11,6 +11,20 @@ void Interpreter::interpret(std::unique_ptr<Expr>& expression) {
     }
 }
 
+void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>& statments) {
+    try {
+        for (auto& statement : statments) {
+            execute(statement);
+        }
+    } catch(RuntimeError& error) {
+        Lox::runtimeError(error);
+    }
+    
+}
+
+//==============================================================================
+// ExprVisitor<Value> implementation
+//==============================================================================
 Value Interpreter::visitBinaryExpr(Binary* b) {
     const Value left = evaluate(b->left);
     const Value right = evaluate(b->right);
@@ -93,12 +107,32 @@ Value Interpreter::visitLiteralExpr(Literal* l) {
     return l->value;
 }
 
+//==============================================================================
+// StmtVisitor<void> implementation
+//==============================================================================
+void Interpreter::visitExpressionStmt(Expression* stmt) {
+    evaluate(stmt->expr);
+}
+
+void Interpreter::visitPrintStmt(Print* stmt) {
+    auto val = evaluate(stmt->value);
+    std::cout<<stringify(val)<<std::endl;
+}
+
+
+//==============================================================================
+// Utility methods
+//==============================================================================
 Value Interpreter::evaluate(Expr* expr) {
     return expr->accept(this);
 }
 
 Value Interpreter::evaluate(std::unique_ptr<Expr>& expr) {
     return expr->accept(this);
+}
+
+void Interpreter::execute(std::unique_ptr<Stmt>& stmt) {
+    stmt->accept(this);
 }
 
 bool Interpreter::isTruthy(const Value& v) {

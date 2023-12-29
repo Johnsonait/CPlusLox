@@ -1,11 +1,14 @@
 #ifndef STMT_HPP
 #define STMT_HPP
 
+#include <list>
+
 namespace Lox {
 
 class Expression;
 class Var;
 class Print;
+class Block;
 
 //==============================================================================
 // Statement visitor interface
@@ -18,6 +21,7 @@ public:
     virtual T visitExpressionStmt(Expression*) = 0;
     virtual T visitVarStmt(Var*) = 0;
     virtual T visitPrintStmt(Print*) = 0;
+    virtual T visitBlockStmt(Block*) = 0;
 };
 
 //==============================================================================
@@ -74,6 +78,18 @@ public:
     std::unique_ptr<Expr> value;
 };
 
+class Block : public Stmt {
+public:
+    explicit Block(std::list<std::unique_ptr<Stmt>>&& statements) : statements{std::move(statements)} 
+    {}
+    virtual ~Block() override = default;
+
+    virtual void accept(StmtVisitor<void>* visitor) override {
+        visitor->visitBlockStmt(this);
+    }
+
+    std::list<std::unique_ptr<Stmt>> statements;
+};
 
 }
 

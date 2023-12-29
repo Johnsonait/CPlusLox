@@ -13,6 +13,7 @@ class Binary;
 class Grouping;
 class Unary;
 class Variable;
+class Assign;
 class Literal;
 
 //==============================================================================
@@ -28,6 +29,7 @@ public:
     virtual T visitUnaryExpr(Unary*) = 0;
     virtual T visitLiteralExpr(Literal*) = 0;
     virtual T visitVariableExpr(Variable*) = 0;
+    virtual T visitAssignExpr(Assign*) = 0;
 
 };
 
@@ -170,6 +172,28 @@ public:
     }
 
     Token name;
+};
+
+class Assign : public Expr {
+public:
+    Assign(const Token& name, std::unique_ptr<Expr>& value) : name{name}, value{std::move(value)}
+    {}
+    virtual ~Assign() override = default;
+
+    virtual void accept(ExprVisitor<void>* visitor) override {
+        visitor->visitAssignExpr(this);
+    }
+
+    virtual std::string accept(ExprVisitor<std::string>* visitor) override {
+        return visitor->visitAssignExpr(this);
+    }
+
+    virtual Value accept(ExprVisitor<Value>* visitor) override {
+        return visitor->visitAssignExpr(this);
+    }
+
+    Token name;
+    std::unique_ptr<Expr> value;
 };
 
 } // Lox namespace

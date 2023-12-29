@@ -2,9 +2,8 @@
 
 namespace Lox {
 
-Interpreter::Interpreter() {
-    this->_environment = std::make_unique<Environment>();
-}
+Interpreter::Interpreter() : _environment{std::make_shared<Environment>()}
+{}
 
 void Interpreter::interpret(std::unique_ptr<Expr>& expression) {
     try {
@@ -115,6 +114,12 @@ Value Interpreter::visitVariableExpr(Variable* v) {
     return _environment->get(v->name);
 }
 
+Value Interpreter::visitAssignExpr(Assign* a) {
+    Value value = evaluate(a->value);
+    _environment->assign(a->name,value);
+    return value;
+}
+
 //==============================================================================
 // StmtVisitor<void> implementation
 //==============================================================================
@@ -137,6 +142,11 @@ void Interpreter::visitVarStmt(Var* stmt) {
     _environment->define(stmt->name.lexeme,value);
 }
 
+void Interpreter::visitBlockStmt(Block* stmt) {
+    auto env = std::make_shared<Environment>(this->_environment);
+    executeBlock(stmt->statements,env);
+}
+
 
 //==============================================================================
 // Utility methods
@@ -151,6 +161,21 @@ Value Interpreter::evaluate(std::unique_ptr<Expr>& expr) {
 
 void Interpreter::execute(std::unique_ptr<Stmt>& stmt) {
     stmt->accept(this);
+}
+
+void Interpreter::executeBlock(std::list<std::unique_ptr<Stmt>>& statements, std::shared_ptr<Environment> environment) {
+    auto previous = this->_environment;
+    try {
+        this->_environment = environment;
+        for (auto& stmt : statements) {
+            execute(stmt);
+        }
+        this->_environment = previous;
+    } catch(...) {
+        this->_environment = previous;
+        throw;
+    }
+
 }
 
 bool Interpreter::isTruthy(const Value& v) {

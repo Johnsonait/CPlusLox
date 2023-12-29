@@ -32,6 +32,7 @@ public:
     virtual Value visitUnaryExpr(Unary*) override;
     virtual Value visitLiteralExpr(Literal*) override;
     virtual Value visitVariableExpr(Variable*) override;
+    virtual Value visitAssignExpr(Assign*) override;
 
     // StmtVisitor<void>
     virtual void visitExpressionStmt(Expression*) override;

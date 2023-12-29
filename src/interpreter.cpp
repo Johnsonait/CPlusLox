@@ -115,6 +115,10 @@ Value Interpreter::visitVariableExpr(Variable* v) {
     return _environment->get(v->name);
 }
 
+Value Interpreter::visitAssignExpr(Assign* a) {
+    return;
+}
+
 //==============================================================================
 // StmtVisitor<void> implementation
 //==============================================================================

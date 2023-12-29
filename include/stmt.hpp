@@ -4,6 +4,7 @@
 namespace Lox {
 
 class Expression;
+class Var;
 class Print;
 
 //==============================================================================
@@ -15,6 +16,7 @@ public:
     virtual ~StmtVisitor(){}
 
     virtual T visitExpressionStmt(Expression*) = 0;
+    virtual T visitVarStmt(Var*) = 0;
     virtual T visitPrintStmt(Print*) = 0;
 };
 
@@ -43,6 +45,20 @@ public:
     }
 
     std::unique_ptr<Expr> expr;
+};
+
+class Var : public Stmt {
+public: 
+    explicit Var(const Token& name, std::unique_ptr<Expr>& init) : name{name} ,initializer{std::move(init)}
+    {}
+    virtual ~Var() override = default;
+
+    virtual void accept(StmtVisitor<void>* visitor) override {
+        visitor->visitVarStmt(this);
+    }
+
+    Token name;
+    std::unique_ptr<Expr> initializer;
 };
 
 class Print : public Stmt {

@@ -12,12 +12,12 @@ namespace Lox {
 class Binary;
 class Grouping;
 class Unary;
+class Variable;
 class Literal;
 
 //==============================================================================
 // Abstract Visitor
 //==============================================================================
-
 template<typename T>
 class ExprVisitor {
 public:
@@ -27,6 +27,7 @@ public:
     virtual T visitGroupingExpr(Grouping*) = 0;
     virtual T visitUnaryExpr(Unary*) = 0;
     virtual T visitLiteralExpr(Literal*) = 0;
+    virtual T visitVariableExpr(Variable*) = 0;
 
 };
 
@@ -148,6 +149,27 @@ public:
 
     Value value;
 
+};
+
+class Variable : public Expr {
+public:
+    explicit Variable(const Token& name) : name{name}
+    {}
+    virtual ~Variable() override = default;
+
+    virtual void accept(ExprVisitor<void>* visitor) override {
+        visitor->visitVariableExpr(this);
+    }
+
+    virtual std::string accept(ExprVisitor<std::string>* visitor) override {
+        return visitor->visitVariableExpr(this);
+    }
+
+    virtual Value accept(ExprVisitor<Value>* visitor) override {
+        return visitor->visitVariableExpr(this);
+    }
+
+    Token name;
 };
 
 } // Lox namespace

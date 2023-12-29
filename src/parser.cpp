@@ -24,6 +24,7 @@ std::vector<std::unique_ptr<Stmt>> Parser::parse() {
 
 std::unique_ptr<Stmt> Parser::statement() {
     if (match({TokenType::PRINT})) return printStatement();
+    if (match({TokenType::LEFT_BRACE})) return std::make_unique<Block>(block());
 
     return expressionStatement();
 }
@@ -65,11 +66,40 @@ std::unique_ptr<Stmt> Parser::expressionStatement() {
     return std::make_unique<Expression>(expr);
 }
 
+std::list<std::unique_ptr<Stmt>> Parser::block() {
+    auto statements = std::list<std::unique_ptr<Stmt>>{};
+
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        statements.push_back(declaration());
+    }
+
+    consume(TokenType::RIGHT_BRACE,"Expect '}' after block.");
+    return statements;
+}
+
 //==============================================================================
 // Expression handling
 //==============================================================================
 std::unique_ptr<Expr> Parser::expression() {
-    return equality();
+    return assignment();
+}
+
+std::unique_ptr<Expr> Parser::assignment() {
+    auto expr = equality();
+
+    if (match({TokenType::EQUAL})) {
+        auto equals = previous();
+        auto value = assignment();
+
+        if (Variable* v = dynamic_cast<Variable*>(expr.get())) {
+            auto name = v->name;
+            return std::make_unique<Assign>(name,value);
+        }
+
+        Lox::error(equals,"Invalid assignment target.");
+    }
+
+    return expr;
 }
 
 std::unique_ptr<Expr> Parser::equality() {

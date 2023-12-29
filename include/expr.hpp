@@ -180,15 +180,15 @@ public:
     {}
     virtual ~Assign() override = default;
 
-    virtual void accept(ExprVisitor<void>* visitor) {
+    virtual void accept(ExprVisitor<void>* visitor) override {
         visitor->visitAssignExpr(this);
     }
 
-    virtual std::string accept(ExprVisitor<std::string>* visitor) {
+    virtual std::string accept(ExprVisitor<std::string>* visitor) override {
         return visitor->visitAssignExpr(this);
     }
 
-    virtual Value accept(ExprVisitor<Value>* visitor) {
+    virtual Value accept(ExprVisitor<Value>* visitor) override {
         return visitor->visitAssignExpr(this);
     }
 

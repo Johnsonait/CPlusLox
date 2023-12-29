@@ -4,6 +4,7 @@
 #include "value.hpp"
 #include "errors.hpp"
 
+#include <memory>
 #include <map>
 #include <unordered_map>
 #include <string>
@@ -13,15 +14,19 @@ namespace Lox {
 class Environment {
 public:
     Environment() = default;
+    explicit Environment(std::shared_ptr<Environment>);
     ~Environment() = default;
 
     void define(std::string, Value);
+    void assign(const Token&, const Value&);
 
     Value& get(const Token&);
 
+    std::shared_ptr<Environment> enclosing;
+
 
 private:
-    std::map<std::string,Value> values;
+    std::unordered_map<std::string,Value> values;
 };
 
 } // Lox namespace

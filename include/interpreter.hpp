@@ -38,13 +38,15 @@ public:
     virtual void visitExpressionStmt(Expression*) override;
     virtual void visitVarStmt(Var*) override;
     virtual void visitPrintStmt(Print*) override;
+    virtual void visitBlockStmt(Block*) override;
 
 private:
-    std::unique_ptr<Environment> _environment;
+    std::shared_ptr<Environment> _environment;
 
     Value evaluate(Expr*);
     Value evaluate(std::unique_ptr<Expr>&);
     void execute(std::unique_ptr<Stmt>&);
+    void executeBlock(std::list<std::unique_ptr<Stmt>>&, std::shared_ptr<Environment>);
     bool isTruthy(const Value&);
     std::string stringify(const Value&);
     

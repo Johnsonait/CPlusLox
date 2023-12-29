@@ -2,6 +2,10 @@
 
 namespace Lox {
 
+Interpreter::Interpreter() {
+    this->_environment = std::make_unique<Environment>();
+}
+
 void Interpreter::interpret(std::unique_ptr<Expr>& expression) {
     try {
         Value value = evaluate(expression);
@@ -86,7 +90,7 @@ Value Interpreter::visitUnaryExpr(Unary* u) {
     switch (u->op.type)
     {
     case TokenType::BANG: {
-        return !isTruthy(right);
+        return Value{!isTruthy(right)};
     }
     case TokenType::MINUS: {
         checkNumberOperand(u->op,right);
@@ -107,6 +111,10 @@ Value Interpreter::visitLiteralExpr(Literal* l) {
     return l->value;
 }
 
+Value Interpreter::visitVariableExpr(Variable* v) {
+    return _environment->get(v->name);
+}
+
 //==============================================================================
 // StmtVisitor<void> implementation
 //==============================================================================
@@ -117,6 +125,16 @@ void Interpreter::visitExpressionStmt(Expression* stmt) {
 void Interpreter::visitPrintStmt(Print* stmt) {
     auto val = evaluate(stmt->value);
     std::cout<<stringify(val)<<std::endl;
+}
+
+void Interpreter::visitVarStmt(Var* stmt) {
+    Value value{};
+
+    if (stmt->initializer != nullptr) {
+        value = evaluate(stmt->initializer);
+    } 
+
+    _environment->define(stmt->name.lexeme,value);
 }
 
 

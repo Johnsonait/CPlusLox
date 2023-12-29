@@ -16,7 +16,7 @@ Parser::Parser(const std::vector<Token>& t) : tokens{t}
 std::vector<std::unique_ptr<Stmt>> Parser::parse() {
     auto statements = std::vector<std::unique_ptr<Stmt>>{};
     while(!isAtEnd()) {
-        statements.push_back(statement());
+        statements.push_back(declaration());
     }
 
     return statements;
@@ -26,6 +26,32 @@ std::unique_ptr<Stmt> Parser::statement() {
     if (match({TokenType::PRINT})) return printStatement();
 
     return expressionStatement();
+}
+
+std::unique_ptr<Stmt> Parser::declaration() {
+    try {
+        if (match({TokenType::VAR})) return varDeclaration();
+        return statement();
+    } catch (ParseError& error) {
+        synchronize();
+        return nullptr;
+    }
+
+}
+
+std::unique_ptr<Stmt> Parser::varDeclaration() {
+    // Once we reconginze a var, we need to find the identifier or throw
+    auto name = consume(TokenType::IDENTIFIER, "Expect variable name");
+    
+    // If there is some kind of initializer, get it after the equals sign.
+    std::unique_ptr<Expr> initializer{};
+    if (match({TokenType::EQUAL})) {
+        initializer = expression();
+    }
+
+    // Search for the end of the statement or throw
+    consume(TokenType::SEMICOLON, "Expect ';' after variable declaration");
+    return std::make_unique<Var>(name,initializer);
 }
 
 std::unique_ptr<Stmt> Parser::printStatement() {
@@ -114,6 +140,10 @@ std::unique_ptr<Expr> Parser::primary() {
 
     if (match({TokenType::NUMBER,TokenType::STRING})) {
         return std::make_unique<Literal>(Value{previous().literal});
+    }
+
+    if (match({TokenType::IDENTIFIER})) {
+        return std::make_unique<Variable>(previous());
     }
     
     if (match({TokenType::LEFT_PAREN})) {

@@ -2,6 +2,10 @@
 
 namespace Lox {
 
+Value::Value() {
+    this->item = std::monostate{};
+}
+
 Value::Value(const double& v) {
     this->item = v;
 }

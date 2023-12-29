@@ -13,6 +13,7 @@ class Binary;
 class Grouping;
 class Unary;
 class Variable;
+class Assign;
 class Literal;
 
 //==============================================================================

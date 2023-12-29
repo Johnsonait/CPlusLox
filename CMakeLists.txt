@@ -1,13 +1,15 @@
 # Set the minimum required version of CMake
 cmake_minimum_required(VERSION 3.10)
 
+# Set the C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_COMPILER gcc) 
+set(CMAKE_CXX_COMPILER g++)
+
 # Declare the project and set it to a variable
 set(PROJECT_NAME CPlusLox)
 set(EXECUTABLE_NAME lox)
 project(${PROJECT_NAME})
-
-# Set the C++ standard
-set(CMAKE_CXX_STANDARD 17)
 
 # Include directories
 include_directories(include)

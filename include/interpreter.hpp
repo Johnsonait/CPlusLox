@@ -3,6 +3,7 @@
 
 #include "lox.hpp"
 #include "value.hpp"
+#include "lox_callable.hpp"
 #include "token_type.hpp"
 #include "expr.hpp"
 #include "stmt.hpp"
@@ -15,6 +16,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <list>
 
 namespace Lox {
 
@@ -34,6 +36,7 @@ public:
     virtual Value visitVariableExpr(Variable*) override;
     virtual Value visitAssignExpr(Assign*) override;
     virtual Value visitLogicalExpr(Logical*) override;
+    virtual Value visitCallExpr(Call*) override;
 
     // StmtVisitor<void>
     virtual void visitExpressionStmt(Expression*) override;
@@ -41,6 +44,7 @@ public:
     virtual void visitPrintStmt(Print*) override;
     virtual void visitBlockStmt(Block*) override;
     virtual void visitIfStmt(If*) override;
+    virtual void visitWhileStmt(While*) override;
 
 private:
     std::shared_ptr<Environment> _environment;

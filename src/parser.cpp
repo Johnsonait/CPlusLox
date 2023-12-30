@@ -2,6 +2,7 @@
 
 namespace Lox {
 
+int Parser::MAXIMUM_FUNCTION_ARGS = 255;
 //==============================================================================
 // Constructors
 //==============================================================================
@@ -25,6 +26,8 @@ std::vector<std::unique_ptr<Stmt>> Parser::parse() {
 std::unique_ptr<Stmt> Parser::statement() {
     if (match({TokenType::IF})) return ifStatement();
     if (match({TokenType::PRINT})) return printStatement();
+    if (match({TokenType::FOR})) return forStatement();
+    if (match({TokenType::WHILE})) return whileStatement();
     if (match({TokenType::LEFT_BRACE})) return std::make_unique<Block>(block());
 
     return expressionStatement();
@@ -47,6 +50,70 @@ std::unique_ptr<Stmt> Parser::ifStatement() {
         elseBranch
     );
 
+}
+
+std::unique_ptr<Stmt> Parser::whileStatement() {
+    consume(TokenType::LEFT_PAREN,"Expect '(' after 'while'.");
+    auto condition = expression();
+
+    consume(TokenType::RIGHT_PAREN,"Expect ')' after condition");
+    auto body = statement();
+
+    return std::make_unique<While>(condition,body);
+}
+
+std::unique_ptr<Stmt> Parser::forStatement() {
+    consume(TokenType::LEFT_PAREN,"Expect '(' after 'for'.");
+    // Basic structure
+    // for(initializer; condition; increment;) {
+    //        body
+    //  }
+
+    // Initializer part of FOR loop
+    std::unique_ptr<Stmt> initializer{};
+    if (match({TokenType::SEMICOLON})) {
+        // Immediate semicolon means initializer is omitted
+    } else if (match({TokenType::VAR})) {
+        initializer = varDeclaration();
+    } else {
+        initializer = expressionStatement();
+    }
+
+    // Condition part
+    std::unique_ptr<Expr> condition{};
+    if (!check(TokenType::SEMICOLON)) {
+        condition = expression();
+    }
+    consume(TokenType::SEMICOLON, "Expect ';' after loop condition.");
+
+    // Increment part
+    std::unique_ptr<Expr> increment{};
+    if (!check(TokenType::RIGHT_PAREN)) {
+        increment = expression();
+    }
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after for clauses.");
+
+    // Body
+    std::unique_ptr<Stmt> body = statement();
+    std::list<std::unique_ptr<Stmt>> stmts;
+    // Desugaring for-loop syntax into lox AST nodes
+    if (increment.get() != nullptr) {
+        stmts.push_back(std::move(body));
+        stmts.push_back(std::make_unique<Expression>(increment));
+        body = std::make_unique<Block>(std::move(stmts));
+    }
+    if (condition.get() == nullptr) {
+        condition = std::make_unique<Literal>(true);
+    }
+    stmts = std::list<std::unique_ptr<Stmt>>{};
+    body = std::make_unique<While>(condition,body);
+    if (initializer.get() != nullptr) {
+        stmts.push_back(std::move(initializer));
+        stmts.push_back(std::move(body));
+        body = std::make_unique<Block>(std::move(stmts));
+    }
+
+    return body;
 }
 
 std::unique_ptr<Stmt> Parser::declaration() {
@@ -206,7 +273,7 @@ std::unique_ptr<Expr> Parser::unary() {
         std::unique_ptr<Expr> right = unary();
         return std::make_unique<Unary>(op,std::move(right));
     }
-    return primary();
+    return call();
 }
 
 std::unique_ptr<Expr> Parser::primary() {
@@ -230,6 +297,37 @@ std::unique_ptr<Expr> Parser::primary() {
 
     throw error(peek(), "Expect expression.");
 
+}
+
+std::unique_ptr<Expr> Parser::call() {
+    auto expr = primary();
+
+    while(true) {
+        if (match({TokenType::LEFT_PAREN})) {
+            expr = finishCall(expr);
+        } else {
+            break;
+        }
+    }
+
+    return expr;
+}
+
+std::unique_ptr<Expr> Parser::finishCall(std::unique_ptr<Expr>& callee) {
+    std::list<std::unique_ptr<Expr>> args{};
+
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            if (args.size() > Parser::MAXIMUM_FUNCTION_ARGS) {
+                error(peek(),"Can't have more than "+std::to_string(Parser::MAXIMUM_FUNCTION_ARGS)+" arguments.");
+            }
+            args.push_back(expression());
+        } while (match({TokenType::COMMA}));
+    }
+
+    Token paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments");
+
+    return std::make_unique<Call>(callee,paren,args);
 }
 
 //==============================================================================

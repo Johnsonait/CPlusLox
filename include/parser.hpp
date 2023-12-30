@@ -22,6 +22,7 @@ public:
     std::vector<std::unique_ptr<Stmt>> parse();
 
 private:
+    static int MAXIMUM_FUNCTION_ARGS;
     int current = 0;
     std::vector<Token> tokens;
 
@@ -30,6 +31,8 @@ private:
     std::unique_ptr<Stmt> printStatement();
     std::unique_ptr<Stmt> expressionStatement();
     std::unique_ptr<Stmt> ifStatement();
+    std::unique_ptr<Stmt> whileStatement();
+    std::unique_ptr<Stmt> forStatement();
     std::list<std::unique_ptr<Stmt>> block();
     std::unique_ptr<Stmt> declaration();
     std::unique_ptr<Stmt> varDeclaration();
@@ -45,6 +48,8 @@ private:
     std::unique_ptr<Expr> factor();
     std::unique_ptr<Expr> unary();
     std::unique_ptr<Expr> primary();
+    std::unique_ptr<Expr> call();
+    std::unique_ptr<Expr> finishCall(std::unique_ptr<Expr>&);
 
     // Error handling
     Token consume(const TokenType& type, const std::string& message);

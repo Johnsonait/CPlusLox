@@ -1,8 +1,8 @@
 #ifndef RUNTIME_ERROR_HPP
 #define RUNTIME_ERROR_HPP
 
-#include "token.hpp"
 #include "error.hpp"
+#include "token.hpp"
 
 #include <string>
 

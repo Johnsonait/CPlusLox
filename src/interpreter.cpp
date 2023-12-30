@@ -133,6 +133,21 @@ Value Interpreter::visitLogicalExpr(Logical* l) {
     return evaluate(l->right);
 }
 
+Value Interpreter::visitCallExpr(Call* c) {
+    Value callee = evaluate(c->callee);
+
+    std::list<Value> args{};
+    for (auto& argument : c->arguments) {
+        args.push_back(evaluate(argument));
+    }
+
+    auto function = Value{std::monostate{}};
+    if (std::holds_alternative<std::shared_ptr<LoxCallable>>(callee.item)) {
+        return (*std::get<std::shared_ptr<LoxCallable>>(callee.item))(this,args);
+    }
+    return function;
+}
+
 //==============================================================================
 // StmtVisitor<void> implementation
 //==============================================================================
@@ -166,6 +181,12 @@ void Interpreter::visitVarStmt(Var* stmt) {
 void Interpreter::visitBlockStmt(Block* stmt) {
     auto env = std::make_shared<Environment>(this->_environment);
     executeBlock(stmt->statements,env);
+}
+
+void Interpreter::visitWhileStmt(While* w) {
+    while (isTruthy(evaluate(w->expr))) {
+        execute(w->body);
+    }
 }
 
 

@@ -21,7 +21,12 @@ Value::Value(const std::string& v) {
 Value::Value(const std::monostate& v) {
     this->item = v;
 }
-Value::Value(const std::variant<double,bool,std::string,std::monostate>& v) {
+
+Value::Value(std::shared_ptr<LoxCallable>& v) {
+    this->item = v;
+}
+
+Value::Value(const std::variant<double,bool,std::string,std::monostate, std::shared_ptr<LoxCallable>>& v) {
     this->item = v;
 }
 
@@ -100,5 +105,6 @@ bool Value::operator==(const Value& rhs) const {
 bool Value::operator!=(const Value& rhs) const {
     return !((*this) == rhs);
 }
+
 
 } // Lox namespace

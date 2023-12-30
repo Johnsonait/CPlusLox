@@ -5,6 +5,7 @@
 #include "value.hpp"
 
 #include <string>
+#include <list>
 #include <memory>
 
 namespace Lox {
@@ -16,6 +17,7 @@ class Variable;
 class Assign;
 class Literal;
 class Logical;
+class Call;
 
 //==============================================================================
 // Abstract Visitor
@@ -32,6 +34,7 @@ public:
     virtual T visitVariableExpr(Variable*) = 0;
     virtual T visitAssignExpr(Assign*) = 0;
     virtual T visitLogicalExpr(Logical*) = 0;
+    virtual T visitCallExpr(Call*) = 0;
 
 };
 
@@ -135,6 +138,8 @@ public:
     {}
     explicit Literal(const std::monostate& v) : value{v}
     {}
+    explicit Literal(const std::shared_ptr<LoxCallable>& v) : value{v}
+    {}
     Literal(const Value& v) : value{v}
     {}
     virtual ~Literal() override = default;
@@ -221,6 +226,31 @@ public:
     Token op;
     std::unique_ptr<Expr> right;
 
+};
+
+class Call : public Expr {
+
+public:
+    Call(std::unique_ptr<Expr>& callee, const Token paren, std::list<std::unique_ptr<Expr>>& args)
+    : callee{std::move(callee)}, paren{paren}, arguments{std::move(args)}
+    {}
+    virtual ~Call() = default;
+
+    void accept(ExprVisitor<void>* visitor) {
+        visitor->visitCallExpr(this);
+    }
+
+    std::string accept(ExprVisitor<std::string>* visitor) {
+        return visitor->visitCallExpr(this);
+    }
+
+    Value accept(ExprVisitor<Value>* visitor) {
+        return visitor->visitCallExpr(this);
+    }
+
+    std::unique_ptr<Expr> callee;
+    Token paren;
+    std::list<std::unique_ptr<Expr>> arguments;
 };
 
 } // Lox namespace

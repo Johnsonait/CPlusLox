@@ -12,6 +12,7 @@ class Var;
 class Print;
 class Block;
 class If;
+class While;
 
 //==============================================================================
 // Statement visitor interface
@@ -26,6 +27,7 @@ public:
     virtual T visitPrintStmt(Print*) = 0;
     virtual T visitBlockStmt(Block*) = 0;
     virtual T visitIfStmt(If*) = 0;
+    virtual T visitWhileStmt(While*) = 0;
 };
 
 //==============================================================================
@@ -109,6 +111,21 @@ public:
     std::unique_ptr<Expr> condition;
     std::unique_ptr<Stmt> thenBranch;
     std::unique_ptr<Stmt> elseBranch;
+};
+
+class While : public Stmt {
+public:
+    While(std::unique_ptr<Expr>& expr, std::unique_ptr<Stmt>& body) 
+    : expr{std::move(expr)}, body{std::move(body)}
+    {}
+    virtual ~While(){};
+
+    void accept(StmtVisitor<void>* visitor) {
+        visitor->visitWhileStmt(this);
+    }
+
+    std::unique_ptr<Expr> expr;
+    std::unique_ptr<Stmt> body;
 };
 
 }

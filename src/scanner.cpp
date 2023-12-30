@@ -59,7 +59,7 @@ void Scanner::addToken(const TokenType& type) {
     addToken(type, std::monostate{});
 }
 
-void Scanner::addToken(const TokenType& type, std::variant<double,bool,std::string,std::monostate> literal) {
+void Scanner::addToken(const TokenType& type, std::variant<double,bool,std::string,std::monostate,std::shared_ptr<LoxCallable>> literal) {
     std::string text = _source.substr(_start, _current-_start);
     _tokens.push_back(
         Token{type,text,literal,_line}

@@ -127,6 +127,14 @@ void Interpreter::visitExpressionStmt(Expression* stmt) {
     evaluate(stmt->expr);
 }
 
+void Interpreter::visitIfStmt(If* stmt) {
+    if(isTruthy(evaluate(stmt->condition))) {
+        execute(stmt->thenBranch);
+    } else if (stmt->elseBranch.get() != nullptr) {
+        execute(stmt->elseBranch);
+    }
+}
+
 void Interpreter::visitPrintStmt(Print* stmt) {
     auto val = evaluate(stmt->value);
     std::cout<<stringify(val)<<std::endl;
@@ -180,7 +188,7 @@ void Interpreter::executeBlock(std::list<std::unique_ptr<Stmt>>& statements, std
 
 bool Interpreter::isTruthy(const Value& v) {
     if (std::holds_alternative<std::monostate>(v.item)) return false;
-    if (std::holds_alternative<bool>(v.item)) return !std::get<bool>(v.item);
+    if (std::holds_alternative<bool>(v.item)) return std::get<bool>(v.item);
     return true;
 }
 

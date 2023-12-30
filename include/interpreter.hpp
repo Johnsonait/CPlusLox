@@ -39,6 +39,7 @@ public:
     virtual void visitVarStmt(Var*) override;
     virtual void visitPrintStmt(Print*) override;
     virtual void visitBlockStmt(Block*) override;
+    virtual void visitIfStmt(If*) override;
 
 private:
     std::shared_ptr<Environment> _environment;

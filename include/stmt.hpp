@@ -1,6 +1,8 @@
 #ifndef STMT_HPP
 #define STMT_HPP
 
+#include "expr.hpp"
+
 #include <list>
 
 namespace Lox {
@@ -9,6 +11,7 @@ class Expression;
 class Var;
 class Print;
 class Block;
+class If;
 
 //==============================================================================
 // Statement visitor interface
@@ -22,6 +25,7 @@ public:
     virtual T visitVarStmt(Var*) = 0;
     virtual T visitPrintStmt(Print*) = 0;
     virtual T visitBlockStmt(Block*) = 0;
+    virtual T visitIfStmt(If*) = 0;
 };
 
 //==============================================================================
@@ -89,6 +93,22 @@ public:
     }
 
     std::list<std::unique_ptr<Stmt>> statements;
+};
+
+class If : public Stmt {
+public: 
+    If(std::unique_ptr<Expr>& condition, std::unique_ptr<Stmt>& thenBranch, std::unique_ptr<Stmt>& elseBranch) :
+    condition{std::move(condition)}, thenBranch{std::move(thenBranch)}, elseBranch{std::move(elseBranch)}
+    {}
+    virtual ~If() override = default;
+
+    virtual void accept(StmtVisitor<void>* visitor) override {
+        visitor->visitIfStmt(this);
+    }
+
+    std::unique_ptr<Expr> condition;
+    std::unique_ptr<Stmt> thenBranch;
+    std::unique_ptr<Stmt> elseBranch;
 };
 
 }

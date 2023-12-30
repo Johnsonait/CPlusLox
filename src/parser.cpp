@@ -105,7 +105,7 @@ std::unique_ptr<Expr> Parser::expression() {
 }
 
 std::unique_ptr<Expr> Parser::assignment() {
-    auto expr = equality();
+    auto expr = or_expression();
 
     if (match({TokenType::EQUAL})) {
         auto equals = previous();
@@ -131,6 +131,32 @@ std::unique_ptr<Expr> Parser::equality() {
     }
 
     return expr;
+}
+
+std::unique_ptr<Expr> Parser::or_expression() {
+    auto expr = and_expression();
+
+    while (match({TokenType::OR})) {
+        Token op = previous();
+        auto right = and_expression();
+        expr = std::make_unique<Logical>(expr,op,right);
+    }
+
+    return expr;
+
+}
+
+std::unique_ptr<Expr> Parser::and_expression() {
+    auto expr = equality();
+    
+    while(match({TokenType::AND})) {
+        Token op = previous();
+        auto right = equality();
+        expr = std::make_unique<Logical>(expr,op,right);
+    }
+
+    return expr;
+
 }
 
 std::unique_ptr<Expr> Parser::comparison() {

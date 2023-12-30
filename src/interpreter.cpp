@@ -120,6 +120,19 @@ Value Interpreter::visitAssignExpr(Assign* a) {
     return value;
 }
 
+Value Interpreter::visitLogicalExpr(Logical* l) {
+    Value left = evaluate(l->left);
+
+    // OR short-circuit
+    if (l->op.type == TokenType::OR) { 
+        if (isTruthy(left)) return left;
+    } else {
+        if (!isTruthy(left)) return left; 
+    }
+
+    return evaluate(l->right);
+}
+
 //==============================================================================
 // StmtVisitor<void> implementation
 //==============================================================================

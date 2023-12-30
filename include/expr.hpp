@@ -15,6 +15,7 @@ class Unary;
 class Variable;
 class Assign;
 class Literal;
+class Logical;
 
 //==============================================================================
 // Abstract Visitor
@@ -30,6 +31,7 @@ public:
     virtual T visitLiteralExpr(Literal*) = 0;
     virtual T visitVariableExpr(Variable*) = 0;
     virtual T visitAssignExpr(Assign*) = 0;
+    virtual T visitLogicalExpr(Logical*) = 0;
 
 };
 
@@ -194,6 +196,31 @@ public:
 
     Token name;
     std::unique_ptr<Expr> value;
+};
+
+class Logical : public Expr {
+public:
+    Logical(std::unique_ptr<Expr>& left, const Token& op, std::unique_ptr<Expr>& right) 
+        : left{std::move(left)}, op{op}, right{std::move(right)}
+    {}
+    virtual ~Logical() = default;
+
+    virtual void accept(ExprVisitor<void>* visitor) {
+        return visitor->visitLogicalExpr(this);
+    }
+
+    virtual std::string accept(ExprVisitor<std::string>* visitor) {
+        return visitor->visitLogicalExpr(this);
+    }
+
+    virtual Value accept(ExprVisitor<Value>* visitor) {
+        return visitor->visitLogicalExpr(this);
+    }
+
+    std::unique_ptr<Expr> left;
+    Token op;
+    std::unique_ptr<Expr> right;
+
 };
 
 } // Lox namespace

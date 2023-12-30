@@ -33,6 +33,7 @@ public:
     virtual Value visitLiteralExpr(Literal*) override;
     virtual Value visitVariableExpr(Variable*) override;
     virtual Value visitAssignExpr(Assign*) override;
+    virtual Value visitLogicalExpr(Logical*) override;
 
     // StmtVisitor<void>
     virtual void visitExpressionStmt(Expression*) override;

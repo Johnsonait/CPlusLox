@@ -1,8 +1,6 @@
 #ifndef VALUE_HPP
 #define VALUE_HPP
 
-#include "errors.hpp"
-
 #include <list>
 #include <string>
 #include <variant>

@@ -4,7 +4,6 @@
 #include "value.hpp"
 
 #include <list>
-#include <functional>
 
 namespace Lox {
 
@@ -12,15 +11,10 @@ class Interpreter;
 
 class LoxCallable{
 public:
-    LoxCallable() = default;
-    ~LoxCallable() = default;
+    virtual ~LoxCallable(){}
 
-    Value operator()(Interpreter*, std::list<Value>&);
-
-private:
-    Value call(Interpreter*, std::list<Value>&);
-
-    std::function<Value(Interpreter*, std::list<Value>&)>  func;
+    virtual int arity() = 0;
+    virtual Value call(Interpreter*, std::list<Value>&) = 0;
 };
 
 }

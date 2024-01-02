@@ -29,12 +29,14 @@ private:
     // Statement handling
     std::unique_ptr<Stmt> statement();
     std::unique_ptr<Stmt> printStatement();
+    std::unique_ptr<Stmt> returnStatement();
     std::unique_ptr<Stmt> expressionStatement();
     std::unique_ptr<Stmt> ifStatement();
     std::unique_ptr<Stmt> whileStatement();
     std::unique_ptr<Stmt> forStatement();
     std::list<std::unique_ptr<Stmt>> block();
     std::unique_ptr<Stmt> declaration();
+    std::unique_ptr<Stmt> function(const std::string&);
     std::unique_ptr<Stmt> varDeclaration();
 
     // Expression handling

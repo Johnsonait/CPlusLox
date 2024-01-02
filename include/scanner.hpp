@@ -27,8 +27,6 @@ private:
     char peek();
     char peekNext();
     void addToken(const TokenType&);
-    // Definitely need to work out a better approach to handling value types
-    // void addToken(const TokenType&, std::variant<double,bool,std::string,std::monostate, std::shared_ptr<LoxCallable>>);
     void addToken(const TokenType&, Value);
     bool match(char);
     void string();

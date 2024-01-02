@@ -8,6 +8,8 @@
 namespace Lox {
 
 class Expression;
+class Function;
+class Return;
 class Var;
 class Print;
 class Block;
@@ -23,6 +25,8 @@ public:
     virtual ~StmtVisitor(){}
 
     virtual T visitExpressionStmt(Expression*) = 0;
+    virtual T visitFunctionStmt(Function*) = 0;
+    virtual T visitReturnStmt(Return*) = 0;
     virtual T visitVarStmt(Var*) = 0;
     virtual T visitPrintStmt(Print*) = 0;
     virtual T visitBlockStmt(Block*) = 0;
@@ -126,6 +130,40 @@ public:
 
     std::unique_ptr<Expr> expr;
     std::unique_ptr<Stmt> body;
+};
+
+class Function : public Stmt {
+public:
+    explicit Function(const Token& name, std::list<Token>& params, std::list<std::unique_ptr<Stmt>>& body) 
+    : name{name}, params{params}, body{std::move(body)}
+    {}
+    virtual ~Function(){}
+
+    virtual void accept(StmtVisitor<void>* visitor) override {
+        visitor->visitFunctionStmt(this);
+    }
+
+    Token name;
+    std::list<Token> params;
+    std::list<std::unique_ptr<Stmt>> body;
+
+};
+
+class Return : public Stmt {
+public:
+
+    explicit Return(const Token& keyword, std::unique_ptr<Expr>& value) 
+    : keyword{keyword}, value{std::move(value)}
+    {}
+    virtual ~Return(){}
+
+    virtual void accept(StmtVisitor<void>* visitor) override {
+        visitor->visitReturnStmt(this);
+    }
+
+    Token keyword;
+    std::unique_ptr<Expr> value;
+
 };
 
 }

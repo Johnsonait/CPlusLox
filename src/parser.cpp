@@ -26,6 +26,7 @@ std::vector<std::unique_ptr<Stmt>> Parser::parse() {
 std::unique_ptr<Stmt> Parser::statement() {
     if (match({TokenType::IF})) return ifStatement();
     if (match({TokenType::PRINT})) return printStatement();
+    if (match({TokenType::RETURN})) return returnStatement();
     if (match({TokenType::FOR})) return forStatement();
     if (match({TokenType::WHILE})) return whileStatement();
     if (match({TokenType::LEFT_BRACE})) return std::make_unique<Block>(block());
@@ -118,6 +119,7 @@ std::unique_ptr<Stmt> Parser::forStatement() {
 
 std::unique_ptr<Stmt> Parser::declaration() {
     try {
+        if (match({TokenType::FUN})) return function("function");
         if (match({TokenType::VAR})) return varDeclaration();
         return statement();
     } catch (ParseError& error) {
@@ -125,6 +127,35 @@ std::unique_ptr<Stmt> Parser::declaration() {
         return nullptr;
     }
 
+}
+
+std::unique_ptr<Stmt> Parser::function(const std::string& kind) {
+    // fun NAME(PARAMETERS...) {
+    //    BODY
+    //}
+
+    // NAME
+    auto name = Token{consume(TokenType::IDENTIFIER, "Expect "+kind+" name.")};
+
+    // PARAMETERS
+    consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
+    auto parameters = std::list<Token>{};
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            if (parameters.size() >= Parser::MAXIMUM_FUNCTION_ARGS) {
+                error(peek(), "Can't have more than "+std::to_string(Parser::MAXIMUM_FUNCTION_ARGS)+" parameters.");
+            }
+            auto param = consume(TokenType::IDENTIFIER, "Expect parameter name.");
+            parameters.push_back(param);
+        } while (match({TokenType::COMMA}));
+    }
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
+
+    // BODY
+    consume(TokenType::LEFT_BRACE, "Expect '{' before "+kind+" body.");
+    auto body = block();
+
+    return std::make_unique<Function>(name,parameters,body);
 }
 
 std::unique_ptr<Stmt> Parser::varDeclaration() {
@@ -147,6 +178,20 @@ std::unique_ptr<Stmt> Parser::printStatement() {
     consume(TokenType::SEMICOLON,"Expect ';' after value.");
     return std::make_unique<Print>(value);
 }
+
+std::unique_ptr<Stmt> Parser::returnStatement() {
+    Token keyword = previous();
+
+    std::unique_ptr<Expr> value{};
+    if (!check(TokenType::SEMICOLON)) {
+        value = expression();
+    }
+
+    consume(TokenType::SEMICOLON, "Expect ';' after return value.");
+    return std::make_unique<Return>(keyword,value);
+
+}
+
 std::unique_ptr<Stmt> Parser::expressionStatement() {
     auto expr = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after expression.");

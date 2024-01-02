@@ -2,8 +2,9 @@
 
 namespace Lox {
 
-Interpreter::Interpreter() : _environment{std::make_shared<Environment>()}
-{}
+Interpreter::Interpreter() : globals{std::make_shared<Environment>()}, _environment{globals} {
+    globals->define("clock",Value{std::make_shared<ClockCallable>()});
+}
 
 void Interpreter::interpret(std::unique_ptr<Expr>& expression) {
     try {
@@ -141,11 +142,12 @@ Value Interpreter::visitCallExpr(Call* c) {
         args.push_back(evaluate(argument));
     }
 
-    auto function = Value{std::monostate{}};
-    if (std::holds_alternative<std::shared_ptr<LoxCallable>>(callee.item)) {
-        return (*std::get<std::shared_ptr<LoxCallable>>(callee.item))(this,args);
+    if (!std::holds_alternative<std::shared_ptr<LoxCallable>>(callee.item)) {
+        throw RuntimeError{c->paren, "Can only call functions and classes."};
     }
-    return function;
+    auto function = std::get<std::shared_ptr<LoxCallable>>(callee.item);
+
+    return function->call(this,args);
 }
 
 //==============================================================================
@@ -166,6 +168,18 @@ void Interpreter::visitIfStmt(If* stmt) {
 void Interpreter::visitPrintStmt(Print* stmt) {
     auto val = evaluate(stmt->value);
     std::cout<<stringify(val)<<std::endl;
+}
+
+void Interpreter::visitFunctionStmt(Function* stmt) {
+    auto function = std::make_shared<LoxFunction>(stmt);
+    _environment->define(stmt->name.lexeme,Value{function});
+}
+
+void  Interpreter::visitReturnStmt(Return* stmt) {
+    auto value = Value{std::monostate{}};
+    if (stmt->value.get() != nullptr) value = evaluate(stmt->value);
+
+    throw ReturnValue{value};
 }
 
 void Interpreter::visitVarStmt(Var* stmt) {

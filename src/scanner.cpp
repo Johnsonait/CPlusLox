@@ -56,15 +56,22 @@ bool Scanner::isAlphaNumeric(char c) {
 }
 
 void Scanner::addToken(const TokenType& type) {
-    addToken(type, std::monostate{});
+    addToken(type, Value{std::monostate{}});
 }
 
-void Scanner::addToken(const TokenType& type, std::variant<double,bool,std::string,std::monostate> literal) {
+void Scanner::addToken(const TokenType& type, Value literal) {
     std::string text = _source.substr(_start, _current-_start);
     _tokens.push_back(
         Token{type,text,literal,_line}
     );
 }
+
+// void Scanner::addToken(const TokenType& type, std::variant<double,bool,std::string,std::monostate,std::shared_ptr<LoxCallable>> literal) {
+//     std::string text = _source.substr(_start, _current-_start);
+//     _tokens.push_back(
+//         Token{type,text,literal,_line}
+//     );
+// }
 
 bool Scanner::match(char expected) {
     if (isAtEnd()) return false;
@@ -84,7 +91,7 @@ void Scanner::number() {
         while (isDigit(peek())) advance();
     }
 
-    addToken(TokenType::NUMBER,std::stod(_source.substr(_start,_current-_start)));
+    addToken(TokenType::NUMBER,Value{std::stod(_source.substr(_start,_current-_start))});
 
 }
 
@@ -116,7 +123,7 @@ void Scanner::string() {
 
     // Remove surrounding quote symbols 
     std::string value = _source.substr(_start + 1, _current -_start - 2);
-    addToken(TokenType::STRING, value);
+    addToken(TokenType::STRING, Value{value});
 }
 
 std::list<Token> Scanner::scanTokens() {
@@ -126,7 +133,7 @@ std::list<Token> Scanner::scanTokens() {
         _start = _current;
         scanToken();
     }
-    Token final_token{TokenType::END, "", std::monostate{}, _line};
+    Token final_token{TokenType::END, "", Value{std::monostate{}}, _line};
     _tokens.push_back(final_token);
 
     return _tokens;

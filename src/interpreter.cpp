@@ -2,8 +2,9 @@
 
 namespace Lox {
 
-Interpreter::Interpreter() : _environment{std::make_shared<Environment>()}
-{}
+Interpreter::Interpreter() : globals{std::make_shared<Environment>()}, _environment{globals} {
+    globals->define("clock",Value{std::make_shared<ClockCallable>()});
+}
 
 void Interpreter::interpret(std::unique_ptr<Expr>& expression) {
     try {
@@ -120,6 +121,35 @@ Value Interpreter::visitAssignExpr(Assign* a) {
     return value;
 }
 
+Value Interpreter::visitLogicalExpr(Logical* l) {
+    Value left = evaluate(l->left);
+
+    // OR short-circuit
+    if (l->op.type == TokenType::OR) { 
+        if (isTruthy(left)) return left;
+    } else {
+        if (!isTruthy(left)) return left; 
+    }
+
+    return evaluate(l->right);
+}
+
+Value Interpreter::visitCallExpr(Call* c) {
+    Value callee = evaluate(c->callee);
+
+    std::list<Value> args{};
+    for (auto& argument : c->arguments) {
+        args.push_back(evaluate(argument));
+    }
+
+    if (!std::holds_alternative<std::shared_ptr<LoxCallable>>(callee.item)) {
+        throw RuntimeError{c->paren, "Can only call functions and classes."};
+    }
+    auto function = std::get<std::shared_ptr<LoxCallable>>(callee.item);
+
+    return function->call(this,args);
+}
+
 //==============================================================================
 // StmtVisitor<void> implementation
 //==============================================================================
@@ -140,6 +170,18 @@ void Interpreter::visitPrintStmt(Print* stmt) {
     std::cout<<stringify(val)<<std::endl;
 }
 
+void Interpreter::visitFunctionStmt(Function* stmt) {
+    auto function = std::make_shared<LoxFunction>(stmt);
+    _environment->define(stmt->name.lexeme,Value{function});
+}
+
+void  Interpreter::visitReturnStmt(Return* stmt) {
+    auto value = Value{std::monostate{}};
+    if (stmt->value.get() != nullptr) value = evaluate(stmt->value);
+
+    throw ReturnValue{value};
+}
+
 void Interpreter::visitVarStmt(Var* stmt) {
     Value value{};
 
@@ -153,6 +195,12 @@ void Interpreter::visitVarStmt(Var* stmt) {
 void Interpreter::visitBlockStmt(Block* stmt) {
     auto env = std::make_shared<Environment>(this->_environment);
     executeBlock(stmt->statements,env);
+}
+
+void Interpreter::visitWhileStmt(While* w) {
+    while (isTruthy(evaluate(w->expr))) {
+        execute(w->body);
+    }
 }
 
 

@@ -4,6 +4,7 @@
 #include "token.hpp"
 #include "token_type.hpp"
 #include "lox.hpp"
+#include "value.hpp"
 
 #include <list>
 #include <variant>
@@ -26,7 +27,7 @@ private:
     char peek();
     char peekNext();
     void addToken(const TokenType&);
-    void addToken(const TokenType&, std::variant<double,bool,std::string,std::monostate>);
+    void addToken(const TokenType&, Value);
     bool match(char);
     void string();
     bool isDigit(char);

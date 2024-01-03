@@ -112,12 +112,30 @@ Value Interpreter::visitLiteralExpr(Literal* l) {
 }
 
 Value Interpreter::visitVariableExpr(Variable* v) {
-    return _environment->get(v->name);
+    return lookUpVariable(v->name,v);
+}
+
+Value Interpreter::lookUpVariable(const Token& name, Expr* expr) {
+    if (_locals.find(expr) != _locals.end()) {
+        int distance = _locals[expr];
+        return _environment->getAt(distance,name.lexeme);
+    } else {
+        return globals->get(name);
+    }
+
 }
 
 Value Interpreter::visitAssignExpr(Assign* a) {
     Value value = evaluate(a->value);
-    _environment->assign(a->name,value);
+
+    if (_locals.find(a) != _locals.end()) {
+        int distance = _locals.at(a);
+        _environment->assignAt(distance,a->name,value);
+
+    } else {
+        globals->assign(a->name,value);
+    }
+
     return value;
 }
 
@@ -217,6 +235,10 @@ Value Interpreter::evaluate(std::unique_ptr<Expr>& expr) {
 
 void Interpreter::execute(std::unique_ptr<Stmt>& stmt) {
     stmt->accept(this);
+}
+
+void Interpreter::resolve(Expr* expr,int depth) {
+    _locals[expr] = depth;
 }
 
 void Interpreter::executeBlock(std::list<std::unique_ptr<Stmt>>& statements, std::shared_ptr<Environment> environment) {

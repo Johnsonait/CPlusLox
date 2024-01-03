@@ -2,6 +2,7 @@
 #define LOX_HPP
 
 #include "interpreter.hpp"
+#include "resolver.hpp"
 #include "scanner.hpp"
 #include "token.hpp"
 #include "expr.hpp"

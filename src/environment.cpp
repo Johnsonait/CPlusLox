@@ -33,4 +33,27 @@ Value& Environment::get(const Token& name) {
     throw RuntimeError{name,"Undefined variable '" + name.lexeme + "'."};
 }
 
+Value& Environment::getAt(int distance, const std::string& name) {
+    auto* env = ancestor(distance);
+    if (env->values.find(name) == env->values.end()) {
+        throw Error{"Value not in scope."};
+    } else {
+        return env->values.at(name);
+    }
+}
+
+void Environment::assignAt(int distance, const Token& name, Value value) {
+    ancestor(distance)->values[name.lexeme] =  value;
+}
+
+Environment* Environment::ancestor(int distance) {
+    Environment* env = this;
+    for (int i = 0; i < distance; i++) {
+        env = env->enclosing.get();
+    }
+    return env;
+}
+
+
+
 } // Lox namespace

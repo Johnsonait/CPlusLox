@@ -95,9 +95,9 @@ void Resolver::visitLiteralExpr(Literal* expr) {
 }
 
 void Resolver::visitVariableExpr(Variable* expr) {
-    if (!scopes.empty() && scopes.back().find(expr->name.lexeme) == scopes.back().end()) {
-        Lox::error(expr->name, "Local variable not found.");
-    } else if (!scopes.empty() && scopes.back().at(expr->name.lexeme) == false) {
+    if (!scopes.empty() && 
+         scopes.back().find(expr->name.lexeme) != scopes.back().end() && 
+         scopes.back().at(expr->name.lexeme) == false) {
         Lox::error(expr->name, "Can't read local variable in it's own initializer.");
     }
     resolveLocal(expr, expr->name);

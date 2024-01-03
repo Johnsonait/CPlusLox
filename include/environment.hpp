@@ -21,6 +21,9 @@ public:
     void assign(const Token&, const Value&);
 
     Value& get(const Token&);
+    Value& getAt(int, const std::string&);
+    void assignAt(int, const Token&, Value);
+    Environment* ancestor(int);
 
     std::shared_ptr<Environment> enclosing;
 

@@ -20,6 +20,7 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <unordered_map>
 
 namespace Lox {
 
@@ -31,6 +32,7 @@ public:
     void interpret(std::unique_ptr<Expr>&);
     void interpret(std::vector<std::unique_ptr<Stmt>>&);
     void execute(std::unique_ptr<Stmt>&);
+    void resolve(Expr*,int);
     void executeBlock(std::list<std::unique_ptr<Stmt>>&, std::shared_ptr<Environment>);
 
     // ExprVisitor<Value>
@@ -55,11 +57,14 @@ public:
 
     std::shared_ptr<Environment> globals;
 
+
 private:
     std::shared_ptr<Environment>& _environment;
+    std::unordered_map<Expr*, int> _locals;
 
     Value evaluate(Expr*);
     Value evaluate(std::unique_ptr<Expr>&);
+    Value lookUpVariable(const Token&, Expr*);
     bool isTruthy(const Value&);
     std::string stringify(const Value&);
     

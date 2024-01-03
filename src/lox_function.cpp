@@ -14,7 +14,7 @@ Value LoxFunction::call(Interpreter* interpreter, std::list<Value>& arguments) {
     auto env = std::make_shared<Environment>(closure);
 
     // Messy-ish way to "zip" the list of parameters and args together so we can
-    // easily operate on them
+    // easily operate on them together
     auto _null = std::list<bool>{};
     std::transform(
         declaration->params.begin(), declaration->params.end(),

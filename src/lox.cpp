@@ -52,22 +52,20 @@ void Lox::run(std::string& source) {
     Scanner scanner{source};
     std::list<Token> tokens = scanner.scanTokens();
 
-    // Parse those tokens into expressions
+    // Parse those tokens into statements
     Parser parser{tokens};
     auto statements = parser.parse();
 
     if (hadError) return;
+    // Static analysis
+    auto resolver = Resolver{&Lox::interpreter};
+    resolver.resolve(statements);
 
+    if (hadError) return;
+
+    // Run the expression to generate side-effects
     Lox::interpreter.interpret(statements);
 
-    // Print out the Abstract Syntax Tree that defines the expression
-    // AstPrinter printer{};
-    // std::cout<<printer.print(expression);
-
-    // std::cout<< tokens.size()<<std::endl;
-    // for (auto token : tokens) {
-        // std::cout << token << std::endl;
-    // }
 
 }
 

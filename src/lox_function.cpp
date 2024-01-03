@@ -2,7 +2,8 @@
 
 namespace Lox {
 
-LoxFunction::LoxFunction(Function* declaration) : declaration{declaration}
+LoxFunction::LoxFunction(Function* declaration, std::shared_ptr<Environment>& closure) 
+: declaration{declaration}, closure{closure}
 {}
 
 int LoxFunction::arity() {
@@ -10,9 +11,10 @@ int LoxFunction::arity() {
 }
 
 Value LoxFunction::call(Interpreter* interpreter, std::list<Value>& arguments) {
-    auto env = std::make_shared<Environment>(interpreter->globals);
+    auto env = std::make_shared<Environment>(closure);
 
-    // Messy-ish way to "zip" the list of parameters and args together
+    // Messy-ish way to "zip" the list of parameters and args together so we can
+    // easily operate on them
     auto _null = std::list<bool>{};
     std::transform(
         declaration->params.begin(), declaration->params.end(),

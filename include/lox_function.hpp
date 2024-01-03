@@ -15,7 +15,7 @@ namespace Lox {
 
 class LoxFunction : public LoxCallable {
 public:
-    explicit LoxFunction(Function* declaration);
+    explicit LoxFunction(Function*, std::shared_ptr<Environment>&);
     virtual ~LoxFunction() override = default;
 
     virtual int arity() override;
@@ -23,6 +23,7 @@ public:
 
 private:
     Function* declaration;
+    std::shared_ptr<Environment> closure;
 
 };
 

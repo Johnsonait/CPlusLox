@@ -171,7 +171,7 @@ void Interpreter::visitPrintStmt(Print* stmt) {
 }
 
 void Interpreter::visitFunctionStmt(Function* stmt) {
-    auto function = std::make_shared<LoxFunction>(stmt);
+    auto function = std::make_shared<LoxFunction>(stmt,this->_environment);
     _environment->define(stmt->name.lexeme,Value{function});
 }
 

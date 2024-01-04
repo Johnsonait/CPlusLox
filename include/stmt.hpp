@@ -8,6 +8,7 @@
 namespace Lox {
 
 class Expression;
+class Class;
 class Function;
 class Return;
 class Var;
@@ -25,6 +26,7 @@ public:
     virtual ~StmtVisitor(){}
 
     virtual T visitExpressionStmt(Expression*) = 0;
+    virtual T visitClassStmt(Class*) = 0;
     virtual T visitFunctionStmt(Function*) = 0;
     virtual T visitReturnStmt(Return*) = 0;
     virtual T visitVarStmt(Var*) = 0;
@@ -163,6 +165,22 @@ public:
 
     Token keyword;
     std::unique_ptr<Expr> value;
+
+};
+
+class Class : public Stmt {
+public:
+    explicit Class(const Token& name, std::list<std::unique_ptr<Function>>& methods)
+    : name{name}, methods{std::move(methods)}
+    {}
+    virtual ~Class(){}
+
+    virtual void accept(StmtVisitor<void>* visitor) override {
+        visitor->visitClassStmt(this);
+    }
+
+    Token name;
+    std::list<std::unique_ptr<Function>> methods;
 
 };
 

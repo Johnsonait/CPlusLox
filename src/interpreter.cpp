@@ -160,10 +160,17 @@ Value Interpreter::visitCallExpr(Call* c) {
         args.push_back(evaluate(argument));
     }
 
-    if (!std::holds_alternative<std::shared_ptr<LoxCallable>>(callee.item)) {
+    auto function = std::shared_ptr<LoxCallable>{};
+    if (!std::holds_alternative<std::shared_ptr<LoxCallable>>(callee.item) &&
+        !std::holds_alternative<std::shared_ptr<LoxClass>>(callee.item)
+        ) {
         throw RuntimeError{c->paren, "Can only call functions and classes."};
+    } else if (std::holds_alternative<std::shared_ptr<LoxCallable>>(callee.item)) {
+        function = std::get<std::shared_ptr<LoxCallable>>(callee.item);
+    } else if (std::holds_alternative<std::shared_ptr<LoxClass>>(callee.item)) {
+        function = std::get<std::shared_ptr<LoxClass>>(callee.item);
     }
-    auto function = std::get<std::shared_ptr<LoxCallable>>(callee.item);
+
 
     return function->call(this,args);
 }
@@ -198,6 +205,12 @@ void  Interpreter::visitReturnStmt(Return* stmt) {
     if (stmt->value.get() != nullptr) value = evaluate(stmt->value);
 
     throw ReturnValue{value};
+}
+
+void Interpreter::visitClassStmt(Class* stmt) {
+    _environment->define(stmt->name.lexeme,Value{std::monostate{}});
+    auto klass = std::make_shared<LoxClass>(stmt->name.lexeme);
+    _environment->assign(stmt->name,Value{klass});
 }
 
 void Interpreter::visitVarStmt(Var* stmt) {
@@ -270,10 +283,10 @@ std::string Interpreter::stringify(const Value& v) {
     }
     if (std::holds_alternative<std::string>(v.item)) return std::get<std::string>(v.item);
     if (std::holds_alternative<bool>(v.item)) return std::get<bool>(v.item) ? "true" : "false";
+    if (std::holds_alternative<std::shared_ptr<LoxClass>>(v.item)) return std::get<std::shared_ptr<LoxClass>>(v.item)->name;
+    if (std::holds_alternative<std::shared_ptr<LoxInstance>>(v.item)) return std::get<std::shared_ptr<LoxInstance>>(v.item)->name() + " instance";
     
-
     return "";
-
 }
 
 void Interpreter::checkNumberOperand(const Token& op, const Value& v) {

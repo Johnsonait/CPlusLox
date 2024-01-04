@@ -119,6 +119,7 @@ std::unique_ptr<Stmt> Parser::forStatement() {
 
 std::unique_ptr<Stmt> Parser::declaration() {
     try {
+        if (match({TokenType::CLASS})) return classDeclaration();
         if (match({TokenType::FUN})) return function("function");
         if (match({TokenType::VAR})) return varDeclaration();
         return statement();
@@ -129,7 +130,7 @@ std::unique_ptr<Stmt> Parser::declaration() {
 
 }
 
-std::unique_ptr<Stmt> Parser::function(const std::string& kind) {
+std::unique_ptr<Function> Parser::function(const std::string& kind) {
     // fun NAME(PARAMETERS...) {
     //    BODY
     //}
@@ -156,6 +157,22 @@ std::unique_ptr<Stmt> Parser::function(const std::string& kind) {
     auto body = block();
 
     return std::make_unique<Function>(name,parameters,body);
+}
+
+std::unique_ptr<Stmt> Parser::classDeclaration() {
+    auto name = consume(TokenType::IDENTIFIER, "Expect class name.");
+    consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
+
+    auto methods = std::list<std::unique_ptr<Function>>{};
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        methods.push_back(
+            function("method")
+        );
+    }
+
+    consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
+
+    return std::make_unique<Class>(name, methods);
 }
 
 std::unique_ptr<Stmt> Parser::varDeclaration() {

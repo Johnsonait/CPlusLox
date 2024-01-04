@@ -36,7 +36,8 @@ private:
     std::unique_ptr<Stmt> forStatement();
     std::list<std::unique_ptr<Stmt>> block();
     std::unique_ptr<Stmt> declaration();
-    std::unique_ptr<Stmt> function(const std::string&);
+    std::unique_ptr<Function> function(const std::string&);
+    std::unique_ptr<Stmt> classDeclaration();
     std::unique_ptr<Stmt> varDeclaration();
 
     // Expression handling

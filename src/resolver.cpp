@@ -141,6 +141,11 @@ void Resolver::visitReturnStmt(Return* stmt) {
     if (stmt->value != nullptr) resolve(stmt->value);
 }
 
+void Resolver::visitClassStmt(Class* stmt) {
+    declare(stmt->name);
+    define(stmt->name);
+}
+
 void Resolver::visitVarStmt(Var* stmt) {
     declare(stmt->name);
     if (stmt->initializer != nullptr) {

@@ -41,6 +41,7 @@ public:
 
     // StmtVisitor<void>
     virtual void visitExpressionStmt(Expression*) override;
+    virtual void visitClassStmt(Class*) override;
     virtual void visitFunctionStmt(Function*) override;
     virtual void visitReturnStmt(Return*) override;
     virtual void visitVarStmt(Var*) override;

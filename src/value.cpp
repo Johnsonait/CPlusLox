@@ -26,9 +26,27 @@ Value::Value(std::shared_ptr<LoxCallable>& v) {
     this->item = v;
 }
 
-Value::Value(const std::variant<double,bool,std::string,std::monostate, std::shared_ptr<LoxCallable>>& v) {
+Value::Value(std::shared_ptr<LoxClass>& v) {
     this->item = v;
 }
+
+Value::Value(std::shared_ptr<LoxInstance>& v) {
+    this->item = v;
+
+}
+
+Value::Value(const std::variant<
+    double,
+    bool,
+    std::string,
+    std::monostate, 
+    std::shared_ptr<LoxCallable>,
+    std::shared_ptr<LoxClass>,
+    std::shared_ptr<LoxInstance>
+    >& v) {
+    this->item = v;
+}
+
 
 // Arithmetic operations
 Value Value::operator+(const Value& rhs) const {

@@ -6,6 +6,7 @@
 #include "return_value.hpp"
 #include "lox_callable.hpp"
 #include "lox_function.hpp"
+#include "lox_class.hpp"
 #include "clock_callable.hpp"
 #include "token_type.hpp"
 #include "expr.hpp"
@@ -47,6 +48,7 @@ public:
 
     // StmtVisitor<void>
     virtual void visitExpressionStmt(Expression*) override;
+    virtual void visitClassStmt(Class*) override;
     virtual void visitFunctionStmt(Function*) override;
     virtual void visitReturnStmt(Return*) override;
     virtual void visitVarStmt(Var*) override;

@@ -175,6 +175,27 @@ Value Interpreter::visitCallExpr(Call* c) {
     return function->call(this,args);
 }
 
+Value Interpreter::visitGetExpr(Get* g) {
+    auto value = evaluate(g->object);
+    if (std::holds_alternative<std::shared_ptr<LoxInstance>>(value.item)) {
+        return std::get<std::shared_ptr<LoxInstance>>(value.item)->get(g->name);
+    }
+
+    throw RuntimeError{g->name,"Only instances have properties."};
+}
+
+Value Interpreter::visitSetExpr(Set* s) {
+    auto object = evaluate(s->object);
+
+    if (!std::holds_alternative<std::shared_ptr<LoxInstance>>(object.item)) {
+        throw RuntimeError{s->name,"Only instances have fields."};
+    }
+
+    auto value = evaluate(s->value);
+    std::get<std::shared_ptr<LoxInstance>>(object.item)->set(s->name,value);
+    return value;
+}
+
 //==============================================================================
 // StmtVisitor<void> implementation
 //==============================================================================

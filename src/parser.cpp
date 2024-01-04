@@ -243,6 +243,8 @@ std::unique_ptr<Expr> Parser::assignment() {
         if (Variable* v = dynamic_cast<Variable*>(expr.get())) {
             auto name = v->name;
             return std::make_unique<Assign>(name,value);
+        } else if (Get* v = dynamic_cast<Get*>(expr.get())) {
+            return std::make_unique<Set>(v->object,v->name,value);
         }
 
         Lox::error(equals,"Invalid assignment target.");
@@ -367,6 +369,9 @@ std::unique_ptr<Expr> Parser::call() {
     while(true) {
         if (match({TokenType::LEFT_PAREN})) {
             expr = finishCall(expr);
+        } else if (match({TokenType::DOT})) {
+            auto name = consume(TokenType::IDENTIFIER,"Expect property name after '.'.");
+            expr = std::make_unique<Get>(expr,name);
         } else {
             break;
         }

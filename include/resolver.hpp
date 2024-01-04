@@ -38,6 +38,8 @@ public:
     virtual void visitAssignExpr(Assign*) override;
     virtual void visitLogicalExpr(Logical*) override;
     virtual void visitCallExpr(Call*) override;
+    virtual void visitGetExpr(Get*) override;
+    virtual void visitSetExpr(Set*) override;
 
     // StmtVisitor<void>
     virtual void visitExpressionStmt(Expression*) override;

@@ -121,6 +121,14 @@ void Resolver::visitCallExpr(Call* expr) {
     }
 }
 
+void Resolver::visitGetExpr(Get* expr) {
+    resolve(expr->object);
+}
+
+void Resolver::visitSetExpr(Set* expr) {
+    resolve(expr->value);
+    resolve(expr->object);
+}
 //==============================================================================
 // StmtVisitor<void>
 //==============================================================================

@@ -45,6 +45,8 @@ public:
     virtual Value visitAssignExpr(Assign*) override;
     virtual Value visitLogicalExpr(Logical*) override;
     virtual Value visitCallExpr(Call*) override;
+    virtual Value visitGetExpr(Get*) override;
+    virtual Value visitSetExpr(Set*) override;
 
     // StmtVisitor<void>
     virtual void visitExpressionStmt(Expression*) override;

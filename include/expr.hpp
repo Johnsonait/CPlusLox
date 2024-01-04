@@ -18,6 +18,8 @@ class Assign;
 class Literal;
 class Logical;
 class Call;
+class Get;
+class Set;
 
 //==============================================================================
 // Abstract Visitor
@@ -35,6 +37,8 @@ public:
     virtual T visitAssignExpr(Assign*) = 0;
     virtual T visitLogicalExpr(Logical*) = 0;
     virtual T visitCallExpr(Call*) = 0;
+    virtual T visitGetExpr(Get*) = 0;
+    virtual T visitSetExpr(Set*) = 0;
 
 };
 
@@ -210,15 +214,15 @@ public:
     {}
     virtual ~Logical() = default;
 
-    virtual void accept(ExprVisitor<void>* visitor) {
+    virtual void accept(ExprVisitor<void>* visitor) override {
         return visitor->visitLogicalExpr(this);
     }
 
-    virtual std::string accept(ExprVisitor<std::string>* visitor) {
+    virtual std::string accept(ExprVisitor<std::string>* visitor) override {
         return visitor->visitLogicalExpr(this);
     }
 
-    virtual Value accept(ExprVisitor<Value>* visitor) {
+    virtual Value accept(ExprVisitor<Value>* visitor) override {
         return visitor->visitLogicalExpr(this);
     }
 
@@ -236,21 +240,72 @@ public:
     {}
     virtual ~Call() = default;
 
-    void accept(ExprVisitor<void>* visitor) {
+    void accept(ExprVisitor<void>* visitor) override {
         visitor->visitCallExpr(this);
     }
 
-    std::string accept(ExprVisitor<std::string>* visitor) {
+    std::string accept(ExprVisitor<std::string>* visitor) override {
         return visitor->visitCallExpr(this);
     }
 
-    Value accept(ExprVisitor<Value>* visitor) {
+    Value accept(ExprVisitor<Value>* visitor) override {
         return visitor->visitCallExpr(this);
     }
 
     std::unique_ptr<Expr> callee;
     Token paren;
     std::list<std::unique_ptr<Expr>> arguments;
+};
+
+class Get : public Expr {
+
+public:
+    Get(std::unique_ptr<Expr>& object, const Token& name) 
+    : object{std::move(object)}, name{name}
+    {}
+
+    virtual ~Get() = default;
+
+    void accept(ExprVisitor<void>* visitor) override {
+        visitor->visitGetExpr(this);
+    }
+
+    std::string accept(ExprVisitor<std::string>* visitor) override {
+        return visitor->visitGetExpr(this);
+    }
+
+    Value accept(ExprVisitor<Value>* visitor) override {
+        return visitor->visitGetExpr(this);
+    }
+
+    std::unique_ptr<Expr> object;
+    Token name;
+};
+
+class Set : public Expr {
+public:
+    Set(std::unique_ptr<Expr>& object, const Token& name, std::unique_ptr<Expr>& value)
+    : object{std::move(object)}, name{name}, value{std::move(value)}
+    {}
+
+    virtual ~Set() = default;
+
+    void accept(ExprVisitor<void>* visitor) override {
+        visitor->visitSetExpr(this);
+    }
+
+    std::string accept(ExprVisitor<std::string>* visitor) override {
+        return visitor->visitSetExpr(this);
+    }
+
+    Value accept(ExprVisitor<Value>* visitor) override {
+        return visitor->visitSetExpr(this);
+    }
+
+    std::unique_ptr<Expr> object;
+    Token name;
+    std::unique_ptr<Expr> value;
+
 };
 
 } // Lox namespace

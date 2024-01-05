@@ -14,8 +14,8 @@ public:
     explicit LoxInstance(LoxClass*);
 
     std::string name();
-    Value& get(const Token&);
-    void set(const Token&, Value&);
+    Value get(const Token&);
+    void set(const Token&, Value);
 
 private:
     LoxClass* klass;

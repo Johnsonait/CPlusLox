@@ -2,9 +2,15 @@
 
 namespace Lox {
 
-LoxFunction::LoxFunction(Function* declaration, std::shared_ptr<Environment>& closure) 
-: declaration{declaration}, closure{closure}
+LoxFunction::LoxFunction(Function* declaration, std::shared_ptr<Environment>& closure, bool isInitializer) 
+: declaration{declaration}, closure{closure}, isInitializer{isInitializer}
 {}
+
+std::shared_ptr<LoxFunction> LoxFunction::bind(LoxInstance* instance) {
+    auto env = std::make_shared<Environment>(closure);
+    env->define("this", Value{std::make_shared<LoxInstance>(*instance)});
+    return std::make_shared<LoxFunction>(declaration,env,isInitializer);
+}
 
 int LoxFunction::arity() {
     return declaration->params.size();
@@ -29,8 +35,11 @@ Value LoxFunction::call(Interpreter* interpreter, std::list<Value>& arguments) {
     try {
         interpreter->executeBlock(declaration->body,env);
     } catch(const ReturnValue& return_value) {
+        if (isInitializer) return closure->getAt(0,"this");
         return return_value.value;
     }
+
+    if (isInitializer) return closure->getAt(0,"this");
     
     return Value{std::monostate{}};
 }

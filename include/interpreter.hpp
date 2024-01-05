@@ -1,11 +1,11 @@
 #ifndef INTERPRETER_HPP
 #define INTERPRETER_HPP
 
+#include "lox_function.hpp"
 #include "lox.hpp"
 #include "value.hpp"
 #include "return_value.hpp"
 #include "lox_callable.hpp"
-#include "lox_function.hpp"
 #include "lox_class.hpp"
 #include "clock_callable.hpp"
 #include "token_type.hpp"
@@ -47,6 +47,7 @@ public:
     virtual Value visitCallExpr(Call*) override;
     virtual Value visitGetExpr(Get*) override;
     virtual Value visitSetExpr(Set*) override;
+    virtual Value visitThisExpr(This*) override;
 
     // StmtVisitor<void>
     virtual void visitExpressionStmt(Expression*) override;

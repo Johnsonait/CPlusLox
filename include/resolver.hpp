@@ -19,7 +19,14 @@ namespace Lox {
 
 enum class FunctionType {
     NONE,
-    FUNCTION
+    FUNCTION,
+    INITIALIZER,
+    METHOD
+};
+
+enum class ClassType {
+    NONE,
+    CLASS
 };
 
 class Resolver : public ExprVisitor<void>, public StmtVisitor<void>{
@@ -40,6 +47,7 @@ public:
     virtual void visitCallExpr(Call*) override;
     virtual void visitGetExpr(Get*) override;
     virtual void visitSetExpr(Set*) override;
+    virtual void visitThisExpr(This*) override;
 
     // StmtVisitor<void>
     virtual void visitExpressionStmt(Expression*) override;
@@ -57,6 +65,7 @@ private:
     std::vector<std::unordered_map<std::string,bool>> scopes;
 
     FunctionType currentFunction;
+    ClassType currentClass;
 
     void resolve(std::unique_ptr<Stmt>&);
     void resolve(std::unique_ptr<Expr>&);

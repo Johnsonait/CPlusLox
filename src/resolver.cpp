@@ -2,7 +2,11 @@
 
 namespace Lox {
 
-Resolver::Resolver(Interpreter* interpreter) : interpreter{interpreter}, scopes{}, currentFunction{FunctionType::NONE}
+Resolver::Resolver(Interpreter* interpreter) 
+: interpreter{interpreter}, 
+  scopes{},
+  currentFunction{FunctionType::NONE},
+  currentClass{ClassType::NONE}
 {}
 
 void Resolver::resolve(std::vector<std::unique_ptr<Stmt>>& statements) {
@@ -127,8 +131,17 @@ void Resolver::visitGetExpr(Get* expr) {
 
 void Resolver::visitSetExpr(Set* expr) {
     resolve(expr->value);
-    resolve(expr->object);
+    resolve(expr->object);void set(const Token&);
 }
+
+void Resolver::visitThisExpr(This* expr) {
+    if (currentClass == ClassType::NONE) {
+        Lox::error(expr->keyword, "Can't use 'this' outside of a class.");
+    }
+
+    resolveLocal(expr, expr->keyword);
+}
+
 //==============================================================================
 // StmtVisitor<void>
 //==============================================================================
@@ -146,12 +159,35 @@ void Resolver::visitReturnStmt(Return* stmt) {
     if (currentFunction == FunctionType::NONE) {
         Lox::error(stmt->keyword,"Can't return from top-level code.");
     }
-    if (stmt->value != nullptr) resolve(stmt->value);
+    if (stmt->value != nullptr) {
+        if (currentFunction == FunctionType::INITIALIZER) {
+            Lox::error(stmt->keyword, "Can't return a value from an initializer.");
+        }
+        resolve(stmt->value);   
+    }
 }
 
 void Resolver::visitClassStmt(Class* stmt) {
+    auto enclosingClass = currentClass;
+    currentClass = ClassType::CLASS;
+
     declare(stmt->name);
     define(stmt->name);
+
+    beginScope();
+    scopes.back().emplace("this", true);
+
+    for (auto& method : stmt->methods) {
+        auto declaration = FunctionType::METHOD;
+        if (method->name.lexeme == "init") {
+            declaration = FunctionType::INITIALIZER;
+        }
+        resolveFunction(method.get(),declaration);
+    }
+
+    endScope();
+
+    currentClass = enclosingClass;
 }
 
 void Resolver::visitVarStmt(Var* stmt) {

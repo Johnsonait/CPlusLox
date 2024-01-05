@@ -32,7 +32,6 @@ Value::Value(std::shared_ptr<LoxClass>& v) {
 
 Value::Value(std::shared_ptr<LoxInstance>& v) {
     this->item = v;
-
 }
 
 Value::Value(const std::variant<

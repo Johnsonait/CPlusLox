@@ -1,10 +1,10 @@
 #ifndef LOX_FUNCTION_HPP
 #define LOX_FUNCTION_HPP
 
+#include "interpreter.hpp"
 #include "stmt.hpp"
 #include "lox_callable.hpp"
 #include "environment.hpp"
-#include "interpreter.hpp"
 #include "return_value.hpp"
 
 #include <memory>
@@ -15,8 +15,10 @@ namespace Lox {
 
 class LoxFunction : public LoxCallable {
 public:
-    explicit LoxFunction(Function*, std::shared_ptr<Environment>&);
+    explicit LoxFunction(Function*, std::shared_ptr<Environment>&, bool);
     virtual ~LoxFunction() override = default;
+
+    std::shared_ptr<LoxFunction> bind(LoxInstance*);
 
     virtual int arity() override;
     virtual Value call(Interpreter*, std::list<Value>&) override;
@@ -24,6 +26,8 @@ public:
 private:
     Function* declaration;
     std::shared_ptr<Environment> closure;
+
+    bool isInitializer;
 
 };
 

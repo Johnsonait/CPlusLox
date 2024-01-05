@@ -20,6 +20,7 @@ class Logical;
 class Call;
 class Get;
 class Set;
+class This;
 
 //==============================================================================
 // Abstract Visitor
@@ -39,6 +40,7 @@ public:
     virtual T visitCallExpr(Call*) = 0;
     virtual T visitGetExpr(Get*) = 0;
     virtual T visitSetExpr(Set*) = 0;
+    virtual T visitThisExpr(This*) = 0;
 
 };
 
@@ -305,6 +307,30 @@ public:
     std::unique_ptr<Expr> object;
     Token name;
     std::unique_ptr<Expr> value;
+
+};
+
+class This : public Expr {
+
+public:
+    explicit This(const Token& keyword) : keyword{keyword}
+    {}
+
+    virtual ~This(){}
+
+    void accept(ExprVisitor<void>* visitor) {
+        return visitor->visitThisExpr(this);
+    }
+
+    std::string accept(ExprVisitor<std::string>* visitor) {
+        return visitor->visitThisExpr(this);
+    }
+
+    Value accept(ExprVisitor<Value>* visitor) {
+        return visitor->visitThisExpr(this);
+    }
+
+    Token keyword;
 
 };
 

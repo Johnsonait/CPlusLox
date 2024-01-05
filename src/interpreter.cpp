@@ -171,7 +171,6 @@ Value Interpreter::visitCallExpr(Call* c) {
         function = std::get<std::shared_ptr<LoxClass>>(callee.item);
     }
 
-
     return function->call(this,args);
 }
 
@@ -186,7 +185,6 @@ Value Interpreter::visitGetExpr(Get* g) {
 
 Value Interpreter::visitSetExpr(Set* s) {
     auto object = evaluate(s->object);
-
     if (!std::holds_alternative<std::shared_ptr<LoxInstance>>(object.item)) {
         throw RuntimeError{s->name,"Only instances have fields."};
     }
@@ -194,6 +192,10 @@ Value Interpreter::visitSetExpr(Set* s) {
     auto value = evaluate(s->value);
     std::get<std::shared_ptr<LoxInstance>>(object.item)->set(s->name,value);
     return value;
+}
+
+Value Interpreter::visitThisExpr(This* t) {
+    return lookUpVariable(t->keyword,t);
 }
 
 //==============================================================================
@@ -217,7 +219,7 @@ void Interpreter::visitPrintStmt(Print* stmt) {
 }
 
 void Interpreter::visitFunctionStmt(Function* stmt) {
-    auto function = std::make_shared<LoxFunction>(stmt,this->_environment);
+    auto function = std::make_shared<LoxFunction>(stmt,this->_environment,false);
     _environment->define(stmt->name.lexeme,Value{function});
 }
 
@@ -230,7 +232,14 @@ void  Interpreter::visitReturnStmt(Return* stmt) {
 
 void Interpreter::visitClassStmt(Class* stmt) {
     _environment->define(stmt->name.lexeme,Value{std::monostate{}});
-    auto klass = std::make_shared<LoxClass>(stmt->name.lexeme);
+
+    auto methods = std::unordered_map<std::string,std::shared_ptr<LoxFunction>>{};
+    for (auto& method : stmt->methods) {
+        auto function = std::make_shared<LoxFunction>(method.get(),_environment,method->name.lexeme == "init");
+        methods.emplace(method->name.lexeme,function);
+    }
+
+    auto klass = std::make_shared<LoxClass>(stmt->name.lexeme, methods);
     _environment->assign(stmt->name,Value{klass});
 }
 
